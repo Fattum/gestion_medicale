@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.gestion_medicale.controllers.LoginController"
+            stylesheets="@styles.css"
+            style="-fx-background-color: #f0f4f8;">
+
+    <center>
+        <VBox styleClass="login-card" alignment="CENTER" spacing="16"
+              maxWidth="400"
+              BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets top="30" bottom="30" left="60" right="60"/>
+            </BorderPane.margin>
+
+            <!-- Title -->
+            <Label text="🏥 Gestion Médicale" styleClass="login-title"/>
+            <Label text="Connectez-vous pour continuer" styleClass="login-subtitle"/>
+
+            <!-- Separator -->
+            <Pane style="-fx-background-color: #e2e8f0; -fx-pref-height:1;" maxWidth="Infinity"/>
+
+            <!-- Username -->
+            <VBox spacing="5">
+                <Label text="Nom d'utilisateur" styleClass="login-label"/>
+                <TextField fx:id="usernameField"
+                           promptText="Entrez votre identifiant"
+                           styleClass="login-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Password -->
+            <VBox spacing="5">
+                <Label text="Mot de passe" styleClass="login-label"/>
+                <PasswordField fx:id="passwordField"
+                               promptText="Entrez votre mot de passe"
+                               styleClass="login-field"
+                               onAction="#handleLogin" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Message -->
+            <Label fx:id="messageLabel" text="" wrapText="true"
+                   styleClass="login-error" alignment="CENTER"
+                   maxWidth="Infinity" visible="false"/>
+
+            <!-- Button -->
+            <Button fx:id="loginButton" text="Se connecter"
+                    styleClass="login-btn" onAction="#handleLogin"
+                    maxWidth="Infinity"/>
+
+            <!-- Footer -->
+            <Label text="Accès réservé aux administrateurs et secrétaires"
+                   style="-fx-font-size:11px; -fx-text-fill:#94a3b8;"
+                   alignment="CENTER" maxWidth="Infinity"/>
+        </VBox>
+    </center>
+</BorderPane>

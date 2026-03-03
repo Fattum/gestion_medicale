@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.gestion_medicale.controllers.DoctorController"
+      stylesheets="@styles.css"
+      spacing="20"
+      style="-fx-background-color: #f0f4f8;">
+
+    <!-- Page Header -->
+    <VBox spacing="4">
+        <Label text="Gestion des Médecins" styleClass="page-title"/>
+        <Label text="Ajouter, modifier et gérer le personnel médical" styleClass="page-subtitle"/>
+    </VBox>
+
+    <!-- Top row: Search + Add button -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <TextField fx:id="searchField" promptText="🔍  Rechercher un médecin..."
+                   styleClass="search-field" onKeyReleased="#handleSearch"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="+ Ajouter médecin" styleClass="btn-success" onAction="#showAddForm"/>
+    </HBox>
+
+    <!-- Message -->
+    <Label fx:id="messageLabel" text="" managed="false" visible="false"
+           styleClass="msg-success" wrapText="true" maxWidth="Infinity"/>
+
+    <!-- Main content: Table + Form side by side -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+        <!-- TABLE CARD -->
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Liste des médecins" styleClass="card-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="countLabel" text="0 médecin(s)"
+                       style="-fx-font-size:12px; -fx-text-fill:#64748b;"/>
+            </HBox>
+
+            <TableView fx:id="doctorTable" styleClass="modern-table" VBox.vgrow="ALWAYS"
+                       onMouseClicked="#onTableRowSelected">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="55"/>
+                    <TableColumn fx:id="colNom" text="NOM" prefWidth="130"/>
+                    <TableColumn fx:id="colPrenom" text="PRÉNOM" prefWidth="130"/>
+                    <TableColumn fx:id="colSpecialite" text="SPÉCIALITÉ" prefWidth="160"/>
+                    <TableColumn fx:id="colUserId" text="UTILISATEUR" prefWidth="120"/>
+                    <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="160"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucun médecin trouvé"
+                           style="-fx-text-fill:#94a3b8; -fx-font-size:14px;"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- FORM CARD -->
+        <VBox fx:id="formCard" styleClass="card" prefWidth="300" minWidth="280" spacing="16"
+              managed="true" visible="true">
+
+            <Label fx:id="formTitle" text="Ajouter un médecin" styleClass="card-title"/>
+
+            <Pane style="-fx-background-color:#e2e8f0; -fx-pref-height:1px;" maxWidth="Infinity"/>
+
+            <!-- Nom -->
+            <VBox spacing="6">
+                <Label text="NOM" styleClass="form-label"/>
+                <TextField fx:id="nomField" promptText="Nom de famille"
+                           styleClass="form-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Prénom -->
+            <VBox spacing="6">
+                <Label text="PRÉNOM" styleClass="form-label"/>
+                <TextField fx:id="prenomField" promptText="Prénom"
+                           styleClass="form-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Spécialité -->
+            <VBox spacing="6">
+                <Label text="SPÉCIALITÉ" styleClass="form-label"/>
+                <TextField fx:id="specialiteField" promptText="Ex: Cardiologie"
+                           styleClass="form-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- User ID -->
+            <VBox spacing="6">
+                <Label text="UTILISATEUR LIÉ (ID)" styleClass="form-label"/>
+                <ComboBox fx:id="userIdCombo" promptText="Sélectionner utilisateur"
+                          styleClass="form-combo" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Hidden ID -->
+            <TextField fx:id="idField" visible="false" managed="false"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Action buttons -->
+            <VBox spacing="8">
+                <HBox spacing="8">
+                    <Button fx:id="saveBtn" text="💾  Enregistrer" styleClass="btn-success"
+                            onAction="#handleSave" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="cancelBtn" text="✕  Annuler" styleClass="btn-secondary"
+                            onAction="#handleCancel" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Button fx:id="deleteBtn" text="🗑  Supprimer" styleClass="btn-danger"
+                        onAction="#handleDelete" maxWidth="Infinity" visible="false" managed="false"/>
+            </VBox>
+        </VBox>
+
+    </HBox>
+</VBox>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.gestion_medicale.controllers.UserController"
+      stylesheets="@styles.css"
+      spacing="20"
+      style="-fx-background-color: #f0f4f8; -fx-padding: 0;">
+
+    <!-- Page Header -->
+    <VBox spacing="4">
+        <Label text="Gestion des Utilisateurs" styleClass="page-title"/>
+        <Label text="Ajouter, modifier et gérer les comptes utilisateurs" styleClass="page-subtitle"/>
+    </VBox>
+
+    <!-- Top row: Search + Add button -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <TextField fx:id="searchField" promptText="🔍  Rechercher un utilisateur..."
+                   styleClass="search-field" onKeyReleased="#handleSearch"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="+ Ajouter utilisateur" styleClass="btn-primary" onAction="#showAddForm"/>
+    </HBox>
+
+    <!-- Message -->
+    <Label fx:id="messageLabel" text="" managed="false" visible="false"
+           wrapText="true" maxWidth="Infinity"/>
+
+    <!-- Main content: Table + Form side by side -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+        <!-- TABLE CARD -->
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Liste des utilisateurs" styleClass="card-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="countLabel" text="0 utilisateur(s)"
+                       style="-fx-font-size:12px; -fx-text-fill:#64748b;"/>
+            </HBox>
+
+            <TableView fx:id="userTable" styleClass="modern-table" VBox.vgrow="ALWAYS"
+                       onMouseClicked="#onTableRowSelected" prefHeight="400">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="colUsername" text="NOM D'UTILISATEUR" prefWidth="200"/>
+                    <TableColumn fx:id="colRole" text="RÔLE" prefWidth="150"/>
+                    <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="200"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucun utilisateur trouvé"
+                           style="-fx-text-fill:#94a3b8; -fx-font-size:14px;"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- FORM CARD -->
+        <VBox fx:id="formCard" styleClass="card" prefWidth="300" minWidth="280" spacing="16">
+
+            <Label fx:id="formTitle" text="Ajouter un utilisateur" styleClass="card-title"/>
+
+            <Pane style="-fx-background-color:#e2e8f0; -fx-pref-height:1px;" maxWidth="Infinity"/>
+
+            <!-- Username -->
+            <VBox spacing="6">
+                <Label text="NOM D'UTILISATEUR" styleClass="form-label"/>
+                <TextField fx:id="usernameField" promptText="Ex: jean.dupont"
+                           styleClass="form-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Password -->
+            <VBox spacing="6">
+                <Label text="MOT DE PASSE" styleClass="form-label"/>
+                <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères"
+                               styleClass="form-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Role ComboBox (items set in controller) -->
+            <VBox spacing="6">
+                <Label text="RÔLE" styleClass="form-label"/>
+                <ComboBox fx:id="roleCombo" promptText="Sélectionner un rôle"
+                          styleClass="form-combo" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Hidden ID field -->
+            <TextField fx:id="idField" visible="false" managed="false"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Action buttons -->
+            <VBox spacing="8">
+                <HBox spacing="8">
+                    <Button fx:id="saveBtn" text="💾  Enregistrer" styleClass="btn-success"
+                            onAction="#handleSave" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="cancelBtn" text="✕  Annuler" styleClass="btn-secondary"
+                            onAction="#handleCancel" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Button fx:id="deleteBtn" text="🗑  Supprimer" styleClass="btn-danger"
+                        onAction="#handleDelete" maxWidth="Infinity" visible="false" managed="false"/>
+            </VBox>
+        </VBox>
+
+    </HBox>
+</VBox>

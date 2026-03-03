@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.gestion_medicale.controllers.MainController"
+            stylesheets="@styles.css"
+            prefWidth="1100" prefHeight="700"
+            style="-fx-background-color: #f0f4f8;">
+
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="240" minWidth="240">
+
+            <!-- Header / Logo -->
+            <VBox styleClass="sidebar-header" spacing="4">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane>
+                        <Circle radius="18" fill="#3b82f6"/>
+                        <Text text="✚" style="-fx-font-size:14px; -fx-fill:white; -fx-font-weight:bold;"/>
+                    </StackPane>
+                    <VBox spacing="1">
+                        <Label text="MediAdmin" styleClass="sidebar-app-name"/>
+                        <Label text="Gestion Médicale" styleClass="sidebar-app-sub"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Nav section label -->
+            <Label text="NAVIGATION" styleClass="sidebar-section-label"/>
+
+            <!-- Dashboard button -->
+            <Button fx:id="btnDashboard" text="🏠  Tableau de bord"
+                    styleClass="sidebar-btn, sidebar-btn-active"
+                    onAction="#showDashboard" maxWidth="Infinity"/>
+
+            <!-- Nav section label -->
+            <Label text="GESTION" styleClass="sidebar-section-label"/>
+
+            <!-- Users button -->
+            <Button fx:id="btnUsers" text="👤  Utilisateurs"
+                    styleClass="sidebar-btn"
+                    onAction="#showUsers" maxWidth="Infinity"/>
+
+            <!-- Doctors button -->
+            <Button fx:id="btnDoctors" text="🩺  Médecins"
+                    styleClass="sidebar-btn"
+                    onAction="#showDoctors" maxWidth="Infinity"/>
+
+            <!-- Spacer -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Divider -->
+            <Pane style="-fx-background-color: #334155; -fx-pref-height: 1px;" maxWidth="Infinity"/>
+
+            <!-- User info at bottom -->
+            <VBox spacing="8" style="-fx-padding: 16 20 16 20;">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <StackPane>
+                        <Circle radius="16" fill="#334155"/>
+                        <Label fx:id="userInitialLabel" text="A"
+                               style="-fx-font-size:12px; -fx-text-fill:white; -fx-font-weight:bold;"/>
+                    </StackPane>
+                    <VBox spacing="1">
+                        <Label fx:id="loggedUserLabel" text="Administrateur"
+                               style="-fx-font-size:13px; -fx-text-fill:white; -fx-font-weight:bold;"/>
+                        <Label fx:id="loggedRoleLabel" text="admin"
+                               style="-fx-font-size:11px; -fx-text-fill:#64748b;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Logout -->
+            <Button text="⎋  Déconnexion" styleClass="sidebar-logout-btn"
+                    onAction="#handleLogout" maxWidth="Infinity"/>
+
+        </VBox>
+    </left>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <center>
+        <VBox style="-fx-background-color: #f0f4f8;">
+            <!-- Top bar -->
+            <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="16">
+                <Label fx:id="pageTitle" text="Tableau de bord" styleClass="top-bar-title"
+                       HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="topUserBadge" text="● admin" styleClass="user-badge"/>
+            </HBox>
+
+            <!-- Dynamic content area -->
+            <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: #f0f4f8; -fx-padding: 24;">
+
+                <!-- Dashboard (default view) -->
+                <VBox fx:id="dashboardPane" spacing="24" visible="true">
+                    <!-- Welcome header -->
+                    <VBox spacing="4">
+                        <Label fx:id="welcomeLabel" text="Bienvenue, Administrateur! 👋" styleClass="page-title"/>
+                        <Label text="Vue d'ensemble du système de gestion médicale" styleClass="page-subtitle"/>
+                    </VBox>
+
+                    <!-- Stat Cards -->
+                    <HBox spacing="16">
+                        <VBox styleClass="stat-card, stat-card-blue" spacing="8" prefWidth="200">
+                            <Label fx:id="statUsers" text="0" styleClass="stat-number"/>
+                            <Label text="Utilisateurs" styleClass="stat-label"/>
+                            <Label text="👤 Comptes actifs" style="-fx-font-size:11px; -fx-text-fill: rgba(255,255,255,0.6);"/>
+                        </VBox>
+                        <VBox styleClass="stat-card, stat-card-green" spacing="8" prefWidth="200">
+                            <Label fx:id="statDoctors" text="0" styleClass="stat-number"/>
+                            <Label text="Médecins" styleClass="stat-label"/>
+                            <Label text="🩺 Personnel médical" style="-fx-font-size:11px; -fx-text-fill: rgba(255,255,255,0.6);"/>
+                        </VBox>
+                        <VBox styleClass="stat-card, stat-card-orange" spacing="8" prefWidth="200">
+                            <Label text="Railway" styleClass="stat-number" style="-fx-font-size:20px;"/>
+                            <Label text="Base de données" styleClass="stat-label"/>
+                            <Label text="🟢 Connexion active" style="-fx-font-size:11px; -fx-text-fill: rgba(255,255,255,0.6);"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Quick actions card -->
+                    <VBox styleClass="card" spacing="16" maxWidth="640">
+                        <Label text="Accès rapide" styleClass="card-title"/>
+                        <HBox spacing="12">
+                            <Button text="+ Nouvel utilisateur" styleClass="btn-primary"
+                                    onAction="#showUsers"/>
+                            <Button text="+ Nouveau médecin" styleClass="btn-success"
+                                    onAction="#showDoctors"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- Users pane (loaded dynamically) -->
+                <VBox fx:id="usersPane" visible="false" VBox.vgrow="ALWAYS"/>
+
+                <!-- Doctors pane (loaded dynamically) -->
+                <VBox fx:id="doctorsPane" visible="false" VBox.vgrow="ALWAYS"/>
+
+            </StackPane>
+        </VBox>
+    </center>
+
+</BorderPane>

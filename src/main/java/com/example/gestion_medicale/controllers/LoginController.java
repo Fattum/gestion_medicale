@@ -15,10 +15,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
-/**
- * Contrôleur de la page de connexion - Design moderne
- */
 public class LoginController {
 
     @FXML private TextField     usernameField;
@@ -42,7 +38,6 @@ public class LoginController {
         try {
             User user = authenticate(username, password);
             if (user != null) {
-                // Block doctor role
                 if ("doctor".equalsIgnoreCase(user.getRole())) {
                     showError("❌ Accès refusé. Seuls les administrateurs et secrétaires peuvent se connecter.");
                     loginButton.setDisable(false);
@@ -50,7 +45,6 @@ public class LoginController {
                     passwordField.clear();
                     return;
                 }
-                // Pass the logged-in user to MainController
                 MainController.setCurrentUser(user);
 
                 FXMLLoader loader = new FXMLLoader(
@@ -82,10 +76,6 @@ public class LoginController {
             e.printStackTrace();
         }
     }
-
-    /**
-     * Vérifie les credentials en base de données
-     */
     private User authenticate(String username, String password) throws Exception {
         String sql = "SELECT id, username, role FROM users WHERE username = ? AND password = ?";
         try (Connection conn = DatabaseConnection.getConnection();

@@ -1,5 +1,4 @@
 package com.example.gestion_medicale.controllers;
-
 import com.example.gestion_medicale.DatabaseConnection;
 import com.example.gestion_medicale.models.Doctor;
 import javafx.collections.FXCollections;

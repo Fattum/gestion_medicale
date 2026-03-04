@@ -14,24 +14,14 @@ import javafx.scene.layout.HBox;
 import java.net.URL;
 import java.sql.*;
 import java.util.ResourceBundle;
-
-/**
- * Contrôleur CRUD pour les utilisateurs - Design moderne
- */
 public class UserController implements Initializable {
-
-    // Table
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, Integer> colId;
     @FXML private TableColumn<User, String>  colUsername;
     @FXML private TableColumn<User, String>  colRole;
     @FXML private TableColumn<User, Void>    colActions;
-
-    // Search & count
     @FXML private TextField searchField;
     @FXML private Label     countLabel;
-
-    // Form
     @FXML private TextField     usernameField;
     @FXML private PasswordField passwordField;
     @FXML private ComboBox<String> roleCombo;
@@ -46,21 +36,15 @@ public class UserController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Populate role combo here (not in FXML to avoid load errors)
         roleCombo.getItems().addAll("admin", "secretary");
         setupTable();
         loadUsers();
         clearForm();
     }
-
-    // ===== TABLE SETUP =====
-
     private void setupTable() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-
-        // Role column with colored badge
         colRole.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String role, boolean empty) {
@@ -93,8 +77,6 @@ public class UserController implements Initializable {
                 }
             }
         });
-
-        // Actions column
         colActions.setCellFactory(col -> new TableCell<>() {
             private final Button editBtn   = new Button("✏ Modifier");
             private final Button delBtn    = new Button("🗑 Supprimer");
@@ -138,8 +120,6 @@ public class UserController implements Initializable {
         userTable.setItems(userList);
     }
 
-    // ===== LOAD DATA =====
-
     private void loadUsers() {
         userList.clear();
         String sql = "SELECT id, username, role FROM users ORDER BY id DESC";
@@ -165,8 +145,6 @@ public class UserController implements Initializable {
         countLabel.setText(userList.size() + " utilisateur(s)");
     }
 
-    // ===== SEARCH =====
-
     @FXML
     private void handleSearch() {
         String q = searchField.getText().trim().toLowerCase();
@@ -185,8 +163,6 @@ public class UserController implements Initializable {
         userTable.setItems(filtered);
         countLabel.setText(filtered.size() + " résultat(s)");
     }
-
-    // ===== FORM ACTIONS =====
 
     @FXML
     private void showAddForm() {
@@ -318,8 +294,6 @@ public class UserController implements Initializable {
         hideMessage();
         userTable.getSelectionModel().clearSelection();
     }
-
-    // ===== HELPERS =====
 
     private void clearForm() {
         isEditMode = false;

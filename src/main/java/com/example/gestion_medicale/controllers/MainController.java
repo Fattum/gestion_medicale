@@ -18,37 +18,21 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ResourceBundle;
-
-/**
- * Contrôleur principal : gère la sidebar et le contenu dynamique
- */
 public class MainController implements Initializable {
-
-    // ----- Sidebar buttons -----
     @FXML private Button btnDashboard;
     @FXML private Button btnUsers;
     @FXML private Button btnDoctors;
-
-    // ----- Top bar -----
     @FXML private Label pageTitle;
     @FXML private Label topUserBadge;
-
-    // ----- User info -----
     @FXML private Label loggedUserLabel;
     @FXML private Label loggedRoleLabel;
     @FXML private Label userInitialLabel;
     @FXML private Label welcomeLabel;
-
-    // ----- Stats -----
     @FXML private Label statUsers;
     @FXML private Label statDoctors;
-
-    // ----- Panes -----
     @FXML private VBox dashboardPane;
     @FXML private VBox usersPane;
     @FXML private VBox doctorsPane;
-
-    // Logged-in user
     private static User currentUser;
 
     public static void setCurrentUser(User user) {
@@ -57,7 +41,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Set user info in sidebar
         if (currentUser != null) {
             loggedUserLabel.setText(currentUser.getUsername());
             loggedRoleLabel.setText(currentUser.getRole());
@@ -68,8 +51,6 @@ public class MainController implements Initializable {
         loadStats();
         showDashboard();
     }
-
-    /** Load counts from DB for stat cards */
     private void loadStats() {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -85,9 +66,6 @@ public class MainController implements Initializable {
             statDoctors.setText("—");
         }
     }
-
-    // ===== SIDEBAR NAVIGATION =====
-
     @FXML
     private void showDashboard() {
         setActivePage(dashboardPane, btnDashboard, "Tableau de bord");
@@ -105,40 +83,26 @@ public class MainController implements Initializable {
         setActivePage(doctorsPane, btnDoctors, "Gestion des Médecins");
         loadPane(doctorsPane, "DoctorManagement.fxml");
     }
-
-    /** Show one pane and hide others; update sidebar active state */
     private void setActivePage(VBox targetPane, Button activeBtn, String title) {
-        // Hide all panes
         dashboardPane.setVisible(false);
         usersPane.setVisible(false);
         doctorsPane.setVisible(false);
-
-        // Show target
         targetPane.setVisible(true);
-
-        // Reset all sidebar buttons
         btnDashboard.getStyleClass().removeAll("sidebar-btn-active");
         btnUsers.getStyleClass().removeAll("sidebar-btn-active");
         btnDoctors.getStyleClass().removeAll("sidebar-btn-active");
-
-        // Set active
         if (!activeBtn.getStyleClass().contains("sidebar-btn-active")) {
             activeBtn.getStyleClass().add("sidebar-btn-active");
         }
-
-        // Update top bar title
         pageTitle.setText(title);
     }
-
-    /** Load an FXML into a VBox container */
     private void loadPane(VBox container, String fxmlName) {
-        if (!container.getChildren().isEmpty()) return; // already loaded
+        if (!container.getChildren().isEmpty()) return; 
         try {
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/example/gestion_medicale/" + fxmlName)
             );
             Node content = loader.load();
-            // Make the loaded content grow vertically
             VBox.setVgrow(content, javafx.scene.layout.Priority.ALWAYS);
             container.getChildren().add(content);
         } catch (IOException e) {

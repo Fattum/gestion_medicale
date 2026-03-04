@@ -11,12 +11,8 @@
             stylesheets="@styles.css"
             prefWidth="1100" prefHeight="700"
             style="-fx-background-color: #f0f4f8;">
-
-    <!-- ===== LEFT SIDEBAR ===== -->
     <left>
         <VBox styleClass="sidebar" prefWidth="240" minWidth="240">
-
-            <!-- Header / Logo -->
             <VBox styleClass="sidebar-header" spacing="4">
                 <HBox alignment="CENTER_LEFT" spacing="12">
                     <StackPane>
@@ -29,16 +25,10 @@
                     </VBox>
                 </HBox>
             </VBox>
-
-            <!-- Nav section label -->
             <Label text="NAVIGATION" styleClass="sidebar-section-label"/>
-
-            <!-- Dashboard button -->
             <Button fx:id="btnDashboard" text="🏠  Tableau de bord"
                     styleClass="sidebar-btn, sidebar-btn-active"
                     onAction="#showDashboard" maxWidth="Infinity"/>
-
-            <!-- Nav section label -->
             <Label text="GESTION" styleClass="sidebar-section-label"/>
 
             <!-- Users button -->

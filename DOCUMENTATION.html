@@ -1,0 +1,1903 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documentation – Gestion Médicale JavaFX</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 13px;
+        color: #1e293b;
+        background: #fff;
+        line-height: 1.6;
+      }
+
+      /* ── Cover Page ── */
+      .cover {
+        height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #1e293b 0%,
+          #334155 50%,
+          #0f172a 100%
+        );
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        page-break-after: always;
+        text-align: center;
+        padding: 40px;
+      }
+      .cover .logo {
+        font-size: 72px;
+        margin-bottom: 24px;
+      }
+      .cover h1 {
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 8px;
+      }
+      .cover .sub {
+        font-size: 18px;
+        color: #94a3b8;
+        margin-bottom: 40px;
+      }
+      .cover .badge {
+        background: rgba(59, 130, 246, 0.2);
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        border-radius: 30px;
+        padding: 8px 28px;
+        font-size: 14px;
+        color: #93c5fd;
+        margin-bottom: 10px;
+        display: inline-block;
+      }
+      .cover .meta {
+        margin-top: 60px;
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      /* ── TOC ── */
+      .toc-page {
+        padding: 60px 80px;
+        page-break-after: always;
+        min-height: 100vh;
+      }
+      .toc-page h2 {
+        font-size: 26px;
+        color: #3b82f6;
+        border-bottom: 3px solid #3b82f6;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+      }
+      .toc-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dotted #e2e8f0;
+        font-size: 13px;
+      }
+      .toc-item .num {
+        color: #64748b;
+        margin-right: 14px;
+        min-width: 24px;
+      }
+      .toc-item .title {
+        flex: 1;
+      }
+      .toc-item .page {
+        color: #94a3b8;
+      }
+      .toc-section {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 14px;
+        margin-top: 18px;
+        margin-bottom: 4px;
+      }
+
+      /* ── Content Pages ── */
+      .page {
+        padding: 50px 70px;
+        page-break-after: always;
+        min-height: 100vh;
+      }
+      .page:last-child {
+        page-break-after: avoid;
+      }
+
+      h2.section-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1e293b;
+        border-left: 5px solid #3b82f6;
+        padding-left: 14px;
+        margin-bottom: 24px;
+        margin-top: 8px;
+      }
+      h3.file-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e40af;
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 10px 16px;
+        margin-top: 28px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+        margin: 14px 0 6px;
+      }
+      p {
+        margin-bottom: 10px;
+        color: #374151;
+      }
+      ul {
+        margin: 6px 0 12px 22px;
+      }
+      ul li {
+        margin-bottom: 4px;
+        color: #374151;
+      }
+
+      /* Code block */
+      .code {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-radius: 10px;
+        padding: 16px 20px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 11.5px;
+        line-height: 1.7;
+        margin: 10px 0 16px;
+        overflow: hidden;
+        white-space: pre;
+      }
+      .kw {
+        color: #60a5fa;
+        font-weight: bold;
+      }
+      .cm {
+        color: #64748b;
+        font-style: italic;
+      }
+      .st {
+        color: #86efac;
+      }
+      .an {
+        color: #fbbf24;
+      }
+      .ty {
+        color: #c4b5fd;
+      }
+      .nb {
+        color: #fb923c;
+      }
+
+      /* Badges */
+      .badge-blue {
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        margin: 2px;
+      }
+      .badge-green {
+        background: #dcfce7;
+        color: #15803d;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        margin: 2px;
+      }
+      .badge-purple {
+        background: #ede9fe;
+        color: #6d28d9;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        margin: 2px;
+      }
+      .badge-orange {
+        background: #ffedd5;
+        color: #c2410c;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        margin: 2px;
+      }
+      .badge-red {
+        background: #fee2e2;
+        color: #b91c1c;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        margin: 2px;
+      }
+
+      /* Info box */
+      .info-box {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+        margin: 14px 0;
+        font-size: 12.5px;
+      }
+      .warn-box {
+        background: #fff7ed;
+        border-left: 4px solid #f59e0b;
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+        margin: 14px 0;
+        font-size: 12.5px;
+      }
+
+      /* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 12px;
+      }
+      th {
+        background: #1e293b;
+        color: white;
+        padding: 10px 14px;
+        text-align: left;
+      }
+      td {
+        padding: 9px 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      tr:nth-child(even) td {
+        background: #f8fafc;
+      }
+      tr:hover td {
+        background: #f0f7ff;
+      }
+
+      /* Architecture diagram */
+      .arch {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 16px 0;
+        font-family: monospace;
+        font-size: 12px;
+        line-height: 2;
+        color: #1e293b;
+      }
+      .arch .dir {
+        color: #3b82f6;
+        font-weight: bold;
+      }
+      .arch .file {
+        color: #059669;
+      }
+      .arch .note {
+        color: #94a3b8;
+        font-style: italic;
+      }
+
+      /* Flow diagram */
+      .flow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 16px 0;
+        flex-wrap: wrap;
+      }
+      .flow-box {
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .flow-arrow {
+        color: #94a3b8;
+        font-size: 18px;
+      }
+
+      /* Footer */
+      .footer {
+        position: fixed;
+        bottom: 30px;
+        left: 70px;
+        right: 70px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: #94a3b8;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 8px;
+      }
+
+      @media print {
+        body {
+          font-size: 12px;
+        }
+        .cover {
+          height: 100vh;
+        }
+        .page,
+        .toc-page {
+          page-break-after: always;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════════════════════════════════════ COVER ══ -->
+    <div class="cover">
+      <div class="logo">🏥</div>
+      <h1>Gestion Médicale</h1>
+      <div class="sub">Application JavaFX + MySQL Railway</div>
+      <div class="badge">📄 Documentation Technique Complète</div>
+      <div class="badge">Version 1.0 — Mars 2026</div>
+      <div class="meta">
+        <p>JavaFX 21 · Maven · HikariCP · MySQL Railway</p>
+        <p style="margin-top: 6px">
+          Architecture MVC — Login · Gestion Utilisateurs · Gestion Médecins
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ TOC ══ -->
+    <div class="toc-page">
+      <h2>📋 Table des Matières</h2>
+
+      <div class="toc-section">1. Vue d'ensemble</div>
+      <div class="toc-item">
+        <span class="num">1.1</span
+        ><span class="title">Architecture du projet</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">1.2</span
+        ><span class="title">Flux de l'application</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">1.3</span
+        ><span class="title">Structure des dossiers</span>
+      </div>
+
+      <div class="toc-section">2. Configuration</div>
+      <div class="toc-item">
+        <span class="num">2.1</span
+        ><span class="title">pom.xml — Dépendances Maven</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">2.2</span
+        ><span class="title">module-info.java — Modules Java</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">2.3</span
+        ><span class="title">database.properties — Config BDD</span>
+      </div>
+
+      <div class="toc-section">3. Couche Base de Données</div>
+      <div class="toc-item">
+        <span class="num">3.1</span
+        ><span class="title">DatabaseConnection.java — Pool HikariCP</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">3.2</span
+        ><span class="title">DatabaseInitializer.java — Création tables</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">3.3</span
+        ><span class="title">init_database.sql — Scripts SQL</span>
+      </div>
+
+      <div class="toc-section">4. Modèles (Models)</div>
+      <div class="toc-item">
+        <span class="num">4.1</span
+        ><span class="title">User.java — Modèle utilisateur</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">4.2</span
+        ><span class="title">Doctor.java — Modèle médecin</span>
+      </div>
+
+      <div class="toc-section">5. Point d'entrée</div>
+      <div class="toc-item">
+        <span class="num">5.1</span
+        ><span class="title">Main.java — Démarrage JavaFX</span>
+      </div>
+
+      <div class="toc-section">6. Contrôleurs (Controllers)</div>
+      <div class="toc-item">
+        <span class="num">6.1</span
+        ><span class="title">LoginController.java — Authentification</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">6.2</span
+        ><span class="title">MainController.java — Navigation principale</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">6.3</span
+        ><span class="title">UserController.java — CRUD Utilisateurs</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">6.4</span
+        ><span class="title">DoctorController.java — CRUD Médecins</span>
+      </div>
+
+      <div class="toc-section">7. Vues FXML</div>
+      <div class="toc-item">
+        <span class="num">7.1</span
+        ><span class="title">login.fxml — Fenêtre connexion</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">7.2</span
+        ><span class="title">MainView.fxml — Fenêtre principale + Sidebar</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">7.3</span
+        ><span class="title">UserManagement.fxml — Gestion utilisateurs</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">7.4</span
+        ><span class="title">DoctorManagement.fxml — Gestion médecins</span>
+      </div>
+
+      <div class="toc-section">8. Styles</div>
+      <div class="toc-item">
+        <span class="num">8.1</span
+        ><span class="title">styles.css — Design système complet</span>
+      </div>
+
+      <div class="toc-section">9. Rôles & Sécurité</div>
+      <div class="toc-item">
+        <span class="num">9.1</span
+        ><span class="title">Rôles utilisateurs et accès</span>
+      </div>
+
+      <div class="toc-section">10. Base de Données</div>
+      <div class="toc-item">
+        <span class="num">10.1</span
+        ><span class="title">Schéma des tables MySQL</span>
+      </div>
+      <div class="toc-item">
+        <span class="num">10.2</span
+        ><span class="title">Connexion Railway</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 1 ══ -->
+    <div class="page">
+      <h2 class="section-title">1. Vue d'ensemble du Projet</h2>
+
+      <h3 class="file-title">🏗 1.1 Architecture MVC</h3>
+      <p>
+        Le projet suit le patron de conception
+        <strong>MVC (Model-View-Controller)</strong> :
+      </p>
+      <table>
+        <tr>
+          <th>Couche</th>
+          <th>Composant</th>
+          <th>Rôle</th>
+        </tr>
+        <tr>
+          <td><span class="badge-purple">Model</span></td>
+          <td>User.java, Doctor.java</td>
+          <td>Données métier, getters/setters JavaFX Properties</td>
+        </tr>
+        <tr>
+          <td><span class="badge-blue">View</span></td>
+          <td>*.fxml + styles.css</td>
+          <td>Interface utilisateur déclarative XML</td>
+        </tr>
+        <tr>
+          <td><span class="badge-green">Controller</span></td>
+          <td>*Controller.java</td>
+          <td>Logique métier, événements, SQL</td>
+        </tr>
+        <tr>
+          <td><span class="badge-orange">Infra</span></td>
+          <td>DatabaseConnection, DatabaseInitializer</td>
+          <td>Pool connexions, initialisation BDD</td>
+        </tr>
+      </table>
+
+      <h3 class="file-title">🔄 1.2 Flux de l'application</h3>
+      <div class="flow">
+        <div class="flow-box">🚀 Main.java</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">DB Init</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">login.fxml</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">LoginController</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">✅ Auth OK</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">MainView.fxml</div>
+      </div>
+      <div class="flow">
+        <div class="flow-box">MainController</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Sidebar click</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">UserManagement / DoctorManagement</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">CRUD MySQL</div>
+      </div>
+
+      <h3 class="file-title">📁 1.3 Structure des dossiers</h3>
+      <div class="arch">
+        <span class="dir">gestion_medicale/</span>
+        ├── <span class="file">pom.xml</span>
+        <span class="note">← Config Maven + dépendances</span> ├──
+        <span class="dir">src/main/java/</span> │ ├──
+        <span class="file">module-info.java</span>
+        <span class="note">← Déclaration module Java</span> │ └──
+        <span class="dir">com/example/gestion_medicale/</span> │ ├──
+        <span class="file">Main.java</span>
+        <span class="note">← Point d'entrée JavaFX</span> │ ├──
+        <span class="file">DatabaseConnection.java</span>
+        <span class="note">← Pool HikariCP</span> │ ├──
+        <span class="file">DatabaseInitializer.java</span>
+        <span class="note">← Création tables auto</span> │ ├──
+        <span class="dir">models/</span> │ │ ├──
+        <span class="file">User.java</span>
+        <span class="note">← Modèle utilisateur</span> │ │ └──
+        <span class="file">Doctor.java</span>
+        <span class="note">← Modèle médecin</span> │ └──
+        <span class="dir">controllers/</span> │ ├──
+        <span class="file">LoginController.java</span>
+        <span class="note">← Authentification</span> │ ├──
+        <span class="file">MainController.java</span>
+        <span class="note">← Navigation sidebar</span> │ ├──
+        <span class="file">UserController.java</span>
+        <span class="note">← CRUD utilisateurs</span> │ └──
+        <span class="file">DoctorController.java</span>
+        <span class="note">← CRUD médecins</span> └──
+        <span class="dir">src/main/resources/</span> ├──
+        <span class="file">database.properties</span>
+        <span class="note">← Credentials BDD Railway</span> ├──
+        <span class="file">init_database.sql</span>
+        <span class="note">← Script SQL création tables</span> └──
+        <span class="dir">com/example/gestion_medicale/</span> ├──
+        <span class="file">login.fxml</span>
+        <span class="note">← Vue connexion</span> ├──
+        <span class="file">MainView.fxml</span>
+        <span class="note">← Vue principale + sidebar</span> ├──
+        <span class="file">UserManagement.fxml</span>
+        <span class="note">← Vue gestion utilisateurs</span> ├──
+        <span class="file">DoctorManagement.fxml</span>
+        <span class="note">← Vue gestion médecins</span> └──
+        <span class="file">styles.css</span>
+        <span class="note">← Design système CSS</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 2 ══ -->
+    <div class="page">
+      <h2 class="section-title">2. Configuration du Projet</h2>
+
+      <h3 class="file-title">📦 2.1 pom.xml — Maven</h3>
+      <p>
+        Fichier de configuration Maven qui déclare les dépendances et plugins du
+        projet.
+      </p>
+      <table>
+        <tr>
+          <th>Dépendance</th>
+          <th>Version</th>
+          <th>Rôle</th>
+        </tr>
+        <tr>
+          <td>javafx-controls</td>
+          <td>21.0.2</td>
+          <td>Composants UI (Button, TextField, TableView…)</td>
+        </tr>
+        <tr>
+          <td>javafx-fxml</td>
+          <td>21.0.2</td>
+          <td>Chargement des fichiers FXML</td>
+        </tr>
+        <tr>
+          <td>mysql-connector-j</td>
+          <td>8.3.0</td>
+          <td>Driver JDBC pour MySQL</td>
+        </tr>
+        <tr>
+          <td>HikariCP</td>
+          <td>5.1.0</td>
+          <td>Pool de connexions haute performance</td>
+        </tr>
+      </table>
+      <h4>Plugin javafx-maven-plugin</h4>
+      <div class="code">
+        <span class="cm">// Lance l'application avec :</span>
+        mvn javafx:run
+
+        <span class="cm">// Compile le projet avec :</span>
+        mvn clean compile
+      </div>
+
+      <h3 class="file-title">🔧 2.2 module-info.java</h3>
+      <p>
+        Déclare les dépendances du module Java et les packages ouverts/exportés
+        :
+      </p>
+      <div class="code">
+        <span class="kw">module</span> com.example.gestion_medicale {
+        <span class="cm">// Accès aux composants JavaFX</span>
+        <span class="kw">requires</span> javafx.controls;
+        <span class="kw">requires</span> javafx.fxml;
+
+        <span class="cm"
+          >// Accès à java.sql (Connection, PreparedStatement…)</span
+        >
+        <span class="kw">requires</span> java.sql;
+
+        <span class="cm">// Accès à HikariCP pour le pool de connexions</span>
+        <span class="kw">requires</span> com.zaxxer.hikari;
+
+        <span class="cm"
+          >// Ouvre le package principal aux FXMLLoader de JavaFX</span
+        >
+        <span class="kw">opens</span> com.example.gestion_medicale
+        <span class="kw">to</span> javafx.fxml;
+
+        <span class="cm"
+          >// Ouvre controllers pour que FXML injecte les @FXML</span
+        >
+        <span class="kw">opens</span> com.example.gestion_medicale.controllers
+        <span class="kw">to</span> javafx.fxml;
+
+        <span class="cm"
+          >// Ouvre models pour PropertyValueFactory (TableView)</span
+        >
+        <span class="kw">opens</span> com.example.gestion_medicale.models
+        <span class="kw">to</span> javafx.fxml, javafx.base;
+
+        <span class="cm">// Exporte les packages publics</span>
+        <span class="kw">exports</span> com.example.gestion_medicale;
+        <span class="kw">exports</span>
+        com.example.gestion_medicale.controllers;
+        <span class="kw">exports</span> com.example.gestion_medicale.models; }
+      </div>
+      <div class="info-box">
+        💡 <strong>Pourquoi opens ?</strong> JavaFX utilise la réflexion pour
+        injecter les champs <code>@FXML</code> et accéder aux propriétés des
+        modèles. Sans <code>opens</code>, une
+        <code>InaccessibleObjectException</code> serait levée.
+      </div>
+
+      <h3 class="file-title">🔑 2.3 database.properties</h3>
+      <p>
+        Fichier de propriétés stockant les credentials de la base de données
+        Railway :
+      </p>
+      <div class="code">
+        db.url=jdbc:mysql://ballast.proxy.rlwy.net:49937/gestion_medical
+        ?useSSL=false&amp;serverTimezone=UTC db.username=root
+        db.password=BjRiAtgFXwPGefkletBgNAFyHFaoBcIU db.pool.size=10
+      </div>
+      <div class="warn-box">
+        ⚠️ <strong>Sécurité :</strong> En production, ce fichier ne doit pas
+        être versionné (ajoutez-le dans <code>.gitignore</code>). Envisagez de
+        chiffrer le mot de passe ou utiliser des variables d'environnement.
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 3 ══ -->
+    <div class="page">
+      <h2 class="section-title">3. Couche Base de Données</h2>
+
+      <h3 class="file-title">🔌 3.1 DatabaseConnection.java</h3>
+      <p>
+        Gère le pool de connexions HikariCP. C'est le seul point d'accès à la
+        base de données dans toute l'application.
+      </p>
+      <h4>Méthodes principales :</h4>
+      <table>
+        <tr>
+          <th>Méthode</th>
+          <th>Type retour</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>getConnection()</code></td>
+          <td>Connection</td>
+          <td>Retourne une connexion du pool (thread-safe)</td>
+        </tr>
+        <tr>
+          <td><code>close()</code></td>
+          <td>void</td>
+          <td>Ferme le pool HikariCP à la fin de l'app</td>
+        </tr>
+      </table>
+      <h4>Fonctionnement :</h4>
+      <div class="code">
+        <span class="cm"
+          >// 1. Lit les propriétés depuis database.properties</span
+        >
+        <span class="ty">Properties</span> props = <span class="kw">new</span>
+        <span class="ty">Properties</span>(); props.load(stream);
+        <span class="cm">// charge depuis le classpath</span>
+
+        <span class="cm">// 2. Configure HikariCP</span>
+        <span class="ty">HikariConfig</span> config =
+        <span class="kw">new</span> <span class="ty">HikariConfig</span>();
+        config.setJdbcUrl(props.getProperty(<span class="st">"db.url"</span>));
+        config.setUsername(props.getProperty(<span class="st"
+          >"db.username"</span
+        >)); config.setPassword(props.getProperty(<span class="st"
+          >"db.password"</span
+        >)); config.setMaximumPoolSize(10);
+        <span class="cm">// max 10 connexions simultanées</span>
+        config.setConnectionTimeout(30000);
+        <span class="cm">// timeout 30s</span>
+
+        <span class="cm">// 3. Création du DataSource (singleton)</span>
+        dataSource = <span class="kw">new</span>
+        <span class="ty">HikariDataSource</span>(config);
+
+        <span class="cm">// 4. Utilisation dans les contrôleurs :</span>
+        <span class="kw">try</span> (<span class="ty">Connection</span> conn =
+        <span class="ty">DatabaseConnection</span>.getConnection()) {
+        <span class="cm"
+          >// connexion automatiquement retournée au pool après le bloc</span
+        >
+        }
+      </div>
+      <div class="info-box">
+        💡 <strong>HikariCP</strong> est le pool de connexions le plus rapide
+        pour Java. Il maintient des connexions ouvertes pour éviter le coût de
+        reconnexion à chaque requête.
+      </div>
+
+      <h3 class="file-title">🏗 3.2 DatabaseInitializer.java</h3>
+      <p>
+        Exécuté au démarrage de l'application. Crée les tables si elles
+        n'existent pas et insère les comptes par défaut.
+      </p>
+      <h4>Rôle :</h4>
+      <ul>
+        <li>Lit et exécute <code>init_database.sql</code> via JDBC</li>
+        <li>
+          Crée la table <code>users</code> avec
+          <code>CREATE TABLE IF NOT EXISTS</code>
+        </li>
+        <li>
+          Crée la table <code>doctors</code> avec
+          <code>CREATE TABLE IF NOT EXISTS</code>
+        </li>
+        <li>
+          Insère l'administrateur par défaut si non existant :
+          <code>admin / admin123</code>
+        </li>
+        <li>
+          Insère la secrétaire par défaut : <code>secretaire / sec123</code>
+        </li>
+      </ul>
+
+      <h3 class="file-title">📄 3.3 init_database.sql</h3>
+      <p>
+        Script SQL exécuté par DatabaseInitializer. Définit le schéma complet de
+        la base :
+      </p>
+      <div class="code">
+        <span class="cm">-- Table utilisateurs</span>
+        <span class="kw">CREATE TABLE IF NOT EXISTS</span> users ( id
+        <span class="ty">INT</span> AUTO_INCREMENT
+        <span class="kw">PRIMARY KEY</span>, username
+        <span class="ty">VARCHAR</span>(100)
+        <span class="nb">UNIQUE NOT NULL</span>, password
+        <span class="ty">VARCHAR</span>(255) <span class="nb">NOT NULL</span>,
+        role <span class="ty">ENUM</span>(<span class="st">'admin'</span>,
+        <span class="st">'secretary'</span>, <span class="st">'doctor'</span>)
+        <span class="nb">NOT NULL</span>
+        );
+
+        <span class="cm">-- Table médecins (liée à users)</span>
+        <span class="kw">CREATE TABLE IF NOT EXISTS</span> doctors ( id
+        <span class="ty">INT</span> AUTO_INCREMENT
+        <span class="kw">PRIMARY KEY</span>, nom
+        <span class="ty">VARCHAR</span>(100) <span class="nb">NOT NULL</span>,
+        prenom <span class="ty">VARCHAR</span>(100)
+        <span class="nb">NOT NULL</span>, specialite
+        <span class="ty">VARCHAR</span>(100) <span class="nb">NOT NULL</span>,
+        user_id <span class="ty">INT</span>,
+        <span class="kw">FOREIGN KEY</span> (user_id)
+        <span class="kw">REFERENCES</span> users(id)
+        <span class="kw">ON DELETE SET NULL</span>
+        );
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 4 ══ -->
+    <div class="page">
+      <h2 class="section-title">4. Modèles (Models)</h2>
+
+      <h3 class="file-title">👤 4.1 User.java</h3>
+      <p>
+        Représente un utilisateur de l'application. Utilisé par la TableView et
+        les contrôleurs.
+      </p>
+      <h4>Attributs :</h4>
+      <table>
+        <tr>
+          <th>Attribut</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>id</td>
+          <td>int</td>
+          <td>Identifiant unique auto-incrémenté (clé primaire)</td>
+        </tr>
+        <tr>
+          <td>username</td>
+          <td>String</td>
+          <td>Nom d'utilisateur unique (login)</td>
+        </tr>
+        <tr>
+          <td>password</td>
+          <td>String</td>
+          <td>Mot de passe (stocké en clair, à hasher en prod)</td>
+        </tr>
+        <tr>
+          <td>role</td>
+          <td>String</td>
+          <td>
+            Rôle : <code>admin</code>, <code>secretary</code>, ou
+            <code>doctor</code>
+          </td>
+        </tr>
+      </table>
+      <h4>Structure :</h4>
+      <div class="code">
+        <span class="kw">public class</span> <span class="ty">User</span> {
+        <span class="kw">private int</span> id; <span class="kw">private</span>
+        <span class="ty">String</span> username, password, role;
+
+        <span class="cm">// Constructeur complet</span>
+        <span class="kw">public</span> <span class="ty">User</span>(<span
+          class="kw"
+          >int</span
+        >
+        id, <span class="ty">String</span> username,
+        <span class="ty">String</span> password,
+        <span class="ty">String</span> role) { ... }
+
+        <span class="cm">// Getters et Setters pour chaque attribut</span>
+        <span class="kw">public int</span> getId() {
+        <span class="kw">return</span> id; } <span class="kw">public</span>
+        <span class="ty">String</span> getUsername() {
+        <span class="kw">return</span> username; }
+        <span class="kw">public</span> <span class="ty">String</span> getRole()
+        { <span class="kw">return</span> role; }
+        <span class="cm">// ... etc</span>
+        }
+      </div>
+      <div class="info-box">
+        💡 <strong>Pourquoi des getters ?</strong> La
+        <code>TableView</code> JavaFX utilise
+        <code>PropertyValueFactory("username")</code> qui appelle
+        automatiquement <code>getUsername()</code> par réflexion.
+      </div>
+
+      <h3 class="file-title">🩺 4.2 Doctor.java</h3>
+      <p>
+        Représente un médecin. Lié à un utilisateur via <code>userId</code> (clé
+        étrangère).
+      </p>
+      <h4>Attributs :</h4>
+      <table>
+        <tr>
+          <th>Attribut</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>id</td>
+          <td>int</td>
+          <td>Identifiant unique auto-incrémenté</td>
+        </tr>
+        <tr>
+          <td>nom</td>
+          <td>String</td>
+          <td>Nom de famille du médecin</td>
+        </tr>
+        <tr>
+          <td>prenom</td>
+          <td>String</td>
+          <td>Prénom du médecin</td>
+        </tr>
+        <tr>
+          <td>specialite</td>
+          <td>String</td>
+          <td>Spécialité médicale (ex: Cardiologie)</td>
+        </tr>
+        <tr>
+          <td>userId</td>
+          <td>int</td>
+          <td>Référence vers la table users (user_id)</td>
+        </tr>
+      </table>
+      <div class="code">
+        <span class="kw">public class</span> <span class="ty">Doctor</span> {
+        <span class="kw">private int</span> id, userId;
+        <span class="kw">private</span> <span class="ty">String</span> nom,
+        prenom, specialite;
+
+        <span class="kw">public</span> <span class="ty">Doctor</span>(<span
+          class="kw"
+          >int</span
+        >
+        id, <span class="ty">String</span> nom,
+        <span class="ty">String</span> prenom,
+        <span class="ty">String</span> specialite,
+        <span class="kw">int</span> userId) { ... }
+        <span class="cm"
+          >// Getters : getId, getNom, getPrenom, getSpecialite, getUserId</span
+        >
+        }
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 5 ══ -->
+    <div class="page">
+      <h2 class="section-title">5. Point d'entrée — Main.java</h2>
+
+      <h3 class="file-title">🚀 5.1 Main.java</h3>
+      <p>
+        Classe principale qui démarre l'application JavaFX. Hérite de
+        <code>Application</code> (obligatoire en JavaFX).
+      </p>
+      <h4>Cycle de vie :</h4>
+      <div class="code">
+        <span class="kw">public class</span> <span class="ty">Main</span>
+        <span class="kw">extends</span> <span class="ty">Application</span> {
+
+        <span class="an">@Override</span>
+        <span class="kw">public void</span> start(<span class="ty">Stage</span>
+        primaryStage) <span class="kw">throws</span>
+        <span class="ty">IOException</span> {
+
+        <span class="cm"
+          >// ÉTAPE 1 : Initialise les tables MySQL au démarrage</span
+        >
+        <span class="ty">DatabaseInitializer</span>.initialize();
+
+        <span class="cm">// ÉTAPE 2 : Charge le FXML de login</span>
+        <span class="ty">FXMLLoader</span> loader = <span class="kw">new</span>
+        <span class="ty">FXMLLoader</span>(
+        <span class="ty">Main</span>.class.getResource(<span class="st"
+          >"/com/.../login.fxml"</span
+        >)); <span class="ty">Scene</span> scene = <span class="kw">new</span>
+        <span class="ty">Scene</span>(loader.load());
+
+        <span class="cm">// ÉTAPE 3 : Configure la fenêtre</span>
+        primaryStage.setTitle(<span class="st"
+          >"Gestion Médicale – Connexion"</span
+        >); primaryStage.setWidth(520);
+        <span class="cm">// largeur 520px</span> primaryStage.setHeight(480);
+        <span class="cm">// hauteur 480px</span> primaryStage.setResizable(<span
+          class="nb"
+          >true</span
+        >);
+        <span class="cm">// redimensionnable</span>
+        primaryStage.centerOnScreen();
+        <span class="cm">// centré à l'écran</span>
+        primaryStage.show(); }
+
+        <span class="an">@Override</span>
+        <span class="kw">public void</span> stop() {
+        <span class="cm"
+          >// Appelé à la fermeture : libère le pool HikariCP</span
+        >
+        <span class="ty">DatabaseConnection</span>.close(); }
+
+        <span class="kw">public static void</span> main(<span class="ty"
+          >String</span
+        >[] args) { launch(args);
+        <span class="cm">// démarre JavaFX Application Thread</span> } }
+      </div>
+      <h4>Points importants :</h4>
+      <ul>
+        <li>
+          <strong>start()</strong> : méthode principale, s'exécute sur le JavaFX
+          Application Thread
+        </li>
+        <li>
+          <strong>stop()</strong> : garantit la fermeture propre du pool
+          HikariCP
+        </li>
+        <li>
+          <strong>launch()</strong> : démarre le moteur JavaFX et appelle
+          <code>start()</code>
+        </li>
+        <li>
+          La fenêtre démarre en <strong>520×480px</strong>, centrée,
+          redimensionnable
+        </li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 6 ══ -->
+    <div class="page">
+      <h2 class="section-title">
+        6. Contrôleurs — LoginController & MainController
+      </h2>
+
+      <h3 class="file-title">🔐 6.1 LoginController.java</h3>
+      <p>
+        Gère l'authentification des utilisateurs. Lié à <code>login.fxml</code>.
+      </p>
+      <h4>Champs @FXML injectés :</h4>
+      <table>
+        <tr>
+          <th>Champ</th>
+          <th>Type FXML</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>usernameField</td>
+          <td>TextField</td>
+          <td>Saisie du nom d'utilisateur</td>
+        </tr>
+        <tr>
+          <td>passwordField</td>
+          <td>PasswordField</td>
+          <td>Saisie du mot de passe (masqué)</td>
+        </tr>
+        <tr>
+          <td>messageLabel</td>
+          <td>Label</td>
+          <td>Affiche les erreurs en rouge</td>
+        </tr>
+        <tr>
+          <td>loginButton</td>
+          <td>Button</td>
+          <td>Bouton "Se connecter"</td>
+        </tr>
+      </table>
+      <h4>Méthode handleLogin() :</h4>
+      <div class="code">
+        <span class="kw">private void</span> handleLogin() {
+        <span class="cm">// 1. Valide que les champs ne sont pas vides</span>
+        <span class="kw">if</span> (username.isEmpty() || password.isEmpty()) {
+        showError(...); <span class="kw">return</span>; }
+
+        <span class="cm">// 2. Désactive le bouton pendant la tentative</span>
+        loginButton.setDisable(<span class="nb">true</span>);
+
+        <span class="cm">// 3. Authentifie contre la BDD</span>
+        <span class="ty">User</span> user = authenticate(username, password);
+
+        <span class="cm">// 4. Bloque le rôle "doctor"</span>
+        <span class="kw">if</span> (<span class="st">"doctor"</span
+        >.equalsIgnoreCase(user.getRole())) { showError(<span class="st"
+          >"❌ Accès refusé. Admins et secrétaires uniquement."</span
+        >); <span class="kw">return</span>; }
+
+        <span class="cm"
+          >// 5. Passe l'utilisateur à MainController (variable statique)</span
+        >
+        <span class="ty">MainController</span>.setCurrentUser(user);
+
+        <span class="cm">// 6. Charge MainView.fxml et change la scène</span>
+        <span class="ty">FXMLLoader</span> loader = <span class="kw">new</span>
+        <span class="ty">FXMLLoader</span>(...<span class="st"
+          >"MainView.fxml"</span
+        >); primaryStage.setScene(<span class="kw">new</span>
+        <span class="ty">Scene</span>(loader.load()));
+        primaryStage.setWidth(1150);
+        <span class="cm">// fenêtre principale plus grande</span>
+        primaryStage.setHeight(720); }
+      </div>
+      <h4>Requête SQL d'authentification :</h4>
+      <div class="code">
+        <span class="kw">SELECT</span> id, username, role
+        <span class="kw">FROM</span> users
+        <span class="kw">WHERE</span> username = ?
+        <span class="kw">AND</span> password = ?
+      </div>
+
+      <h3 class="file-title">🧭 6.2 MainController.java</h3>
+      <p>
+        Gère la navigation dans la fenêtre principale (sidebar + contenu
+        dynamique).
+      </p>
+      <h4>Mécanisme de navigation :</h4>
+      <div class="code">
+        <span class="cm"
+          >// Variable statique pour passer l'utilisateur entre
+          contrôleurs</span
+        >
+        <span class="kw">private static</span>
+        <span class="ty">User</span> currentUser;
+
+        <span class="cm">// Charge un FXML dans le contentArea</span>
+        <span class="kw">private void</span> loadPane(<span class="ty"
+          >String</span
+        >
+        fxmlFile) { <span class="ty">FXMLLoader</span> loader =
+        <span class="kw">new</span>
+        <span class="ty">FXMLLoader</span>(getClass().getResource(fxmlFile));
+        contentArea.getChildren().setAll(loader.load()); }
+
+        <span class="cm"
+          >// Boutons sidebar → showUsers(), showDoctors(),
+          showDashboard()</span
+        >
+        <span class="an">@FXML</span>
+        <span class="kw">private void</span> showUsers() { loadPane(<span
+          class="st"
+          >"UserManagement.fxml"</span
+        >); } <span class="an">@FXML</span>
+        <span class="kw">private void</span> showDoctors() { loadPane(<span
+          class="st"
+          >"DoctorManagement.fxml"</span
+        >); }
+
+        <span class="cm">// Déconnexion : recharge login.fxml</span>
+        <span class="an">@FXML</span>
+        <span class="kw">private void</span> handleLogout() { currentUser =
+        <span class="nb">null</span>;
+        <span class="cm">// charge login.fxml sur la scène principale</span>
+        }
+      </div>
+      <h4>Statistiques du dashboard :</h4>
+      <ul>
+        <li>
+          Requête <code>SELECT COUNT(*) FROM users</code> pour afficher le nb
+          d'utilisateurs
+        </li>
+        <li>
+          Requête <code>SELECT COUNT(*) FROM doctors</code> pour le nb de
+          médecins
+        </li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 7 ══ -->
+    <div class="page">
+      <h2 class="section-title">
+        6. Contrôleurs — UserController & DoctorController
+      </h2>
+
+      <h3 class="file-title">👥 6.3 UserController.java</h3>
+      <p>
+        Implémente toutes les opérations CRUD sur les utilisateurs. Lié à
+        <code>UserManagement.fxml</code>.
+      </p>
+      <h4>Champs @FXML :</h4>
+      <table>
+        <tr>
+          <th>Champ</th>
+          <th>Type</th>
+          <th>Rôle</th>
+        </tr>
+        <tr>
+          <td>userTable</td>
+          <td>TableView&lt;User&gt;</td>
+          <td>Affiche la liste des utilisateurs</td>
+        </tr>
+        <tr>
+          <td>colId/colUsername/colRole/colActions</td>
+          <td>TableColumn</td>
+          <td>Colonnes de la table</td>
+        </tr>
+        <tr>
+          <td>usernameField / passwordField</td>
+          <td>TextField / PasswordField</td>
+          <td>Saisie formulaire</td>
+        </tr>
+        <tr>
+          <td>roleCombo</td>
+          <td>ComboBox&lt;String&gt;</td>
+          <td>Sélection du rôle</td>
+        </tr>
+        <tr>
+          <td>searchField</td>
+          <td>TextField</td>
+          <td>Recherche en temps réel</td>
+        </tr>
+        <tr>
+          <td>messageLabel</td>
+          <td>Label</td>
+          <td>Messages succès/erreur</td>
+        </tr>
+      </table>
+      <h4>Méthodes CRUD :</h4>
+      <table>
+        <tr>
+          <th>Méthode</th>
+          <th>SQL</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>loadUsers()</td>
+          <td>SELECT * FROM users</td>
+          <td>Charge tous les utilisateurs dans la TableView</td>
+        </tr>
+        <tr>
+          <td>addUser()</td>
+          <td>INSERT INTO users...</td>
+          <td>Ajoute un nouvel utilisateur</td>
+        </tr>
+        <tr>
+          <td>updateUser()</td>
+          <td>UPDATE users SET...</td>
+          <td>Met à jour (password optionnel si vide)</td>
+        </tr>
+        <tr>
+          <td>deleteUser()</td>
+          <td>DELETE FROM users</td>
+          <td>Supprime après confirmation Alert</td>
+        </tr>
+        <tr>
+          <td>handleSearch()</td>
+          <td>—</td>
+          <td>Filtre la liste en mémoire (pas de SQL)</td>
+        </tr>
+      </table>
+      <h4>Initialisation :</h4>
+      <div class="code">
+        <span class="an">@Override</span>
+        <span class="kw">public void</span> initialize(<span class="ty"
+          >URL</span
+        >
+        url, <span class="ty">ResourceBundle</span> rb) {
+        <span class="cm"
+          >// Peuple le ComboBox rôles (pas dans FXML pour éviter erreurs)</span
+        >
+        roleCombo.getItems().addAll(<span class="st">"admin"</span>,
+        <span class="st">"secretary"</span>); setupTable();
+        <span class="cm">// configure colonnes + cellFactories</span>
+        loadUsers();
+        <span class="cm">// charge données depuis MySQL</span> clearForm();
+        <span class="cm">// réinitialise le formulaire</span> }
+      </div>
+
+      <h3 class="file-title">🩺 6.4 DoctorController.java</h3>
+      <p>Même architecture que UserController, adapté pour les médecins.</p>
+      <h4>Différences avec UserController :</h4>
+      <ul>
+        <li>
+          <strong>userIdCombo</strong> : ComboBox peuplée avec les utilisateurs
+          (id — username) depuis la BDD
+        </li>
+        <li>
+          <strong>Badge spécialité</strong> : couleur teal
+          (<code>#0891b2</code>) au lieu des badges rôles
+        </li>
+        <li>
+          <strong>4 champs</strong> : nom, prenom, specialite, user_id (vs
+          username, password, role)
+        </li>
+      </ul>
+      <h4>Requêtes SQL spécifiques :</h4>
+      <div class="code">
+        <span class="cm">-- Chargement médecins</span>
+        <span class="kw">SELECT</span> id, nom, prenom, specialite, user_id
+        <span class="kw">FROM</span> doctors <span class="kw">ORDER BY</span> id
+        <span class="kw">DESC</span>
+
+        <span class="cm">-- Ajout médecin</span>
+        <span class="kw">INSERT INTO</span> doctors (nom, prenom, specialite,
+        user_id) <span class="kw">VALUES</span> (?, ?, ?, ?)
+
+        <span class="cm">-- Modification</span>
+        <span class="kw">UPDATE</span> doctors
+        <span class="kw">SET</span> nom=?, prenom=?, specialite=?, user_id=?
+        <span class="kw">WHERE</span> id=?
+
+        <span class="cm">-- Suppression</span>
+        <span class="kw">DELETE FROM</span> doctors
+        <span class="kw">WHERE</span> id=?
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 8 ══ -->
+    <div class="page">
+      <h2 class="section-title">7. Vues FXML</h2>
+
+      <h3 class="file-title">🖥 7.1 login.fxml</h3>
+      <p>
+        Fenêtre de connexion. Utilise <code>BorderPane</code> comme racine pour
+        centrer automatiquement la carte.
+      </p>
+      <table>
+        <tr>
+          <th>Composant</th>
+          <th>fx:id</th>
+          <th>Rôle</th>
+        </tr>
+        <tr>
+          <td>BorderPane</td>
+          <td>—</td>
+          <td>Racine, fond gris #f0f4f8</td>
+        </tr>
+        <tr>
+          <td>VBox (login-card)</td>
+          <td>—</td>
+          <td>Carte blanche centrée, shadow</td>
+        </tr>
+        <tr>
+          <td>Label</td>
+          <td>—</td>
+          <td>Titre "🏥 Gestion Médicale"</td>
+        </tr>
+        <tr>
+          <td>TextField</td>
+          <td>usernameField</td>
+          <td>Saisie identifiant</td>
+        </tr>
+        <tr>
+          <td>PasswordField</td>
+          <td>passwordField</td>
+          <td>Saisie mot de passe (masqué)</td>
+        </tr>
+        <tr>
+          <td>Label</td>
+          <td>messageLabel</td>
+          <td>Message d'erreur (hidden par défaut)</td>
+        </tr>
+        <tr>
+          <td>Button</td>
+          <td>loginButton</td>
+          <td>"Se connecter" → handleLogin()</td>
+        </tr>
+      </table>
+
+      <h3 class="file-title">🏠 7.2 MainView.fxml</h3>
+      <p>
+        Fenêtre principale après connexion. Layout <code>HBox</code> : Sidebar
+        gauche + Zone contenu droite.
+      </p>
+      <table>
+        <tr>
+          <th>Section</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>Sidebar (VBox)</td>
+          <td>
+            Fond #1e293b, header app, boutons navigation, info utilisateur
+          </td>
+        </tr>
+        <tr>
+          <td>Content (VBox)</td>
+          <td>Top bar blanche + StackPane pour les vues dynamiques</td>
+        </tr>
+        <tr>
+          <td>StackPane contentArea</td>
+          <td>
+            Reçoit UserManagement.fxml ou DoctorManagement.fxml dynamiquement
+          </td>
+        </tr>
+        <tr>
+          <td>Dashboard (VBox)</td>
+          <td>
+            3 stat-cards (Utilisateurs, Médecins, Rôle) + boutons accès rapide
+          </td>
+        </tr>
+      </table>
+      <h4>Navigation sidebar :</h4>
+      <ul>
+        <li><strong>🏠 Dashboard</strong> → <code>showDashboard()</code></li>
+        <li>
+          <strong>👥 Utilisateurs</strong> → <code>showUsers()</code> charge
+          UserManagement.fxml
+        </li>
+        <li>
+          <strong>🩺 Médecins</strong> → <code>showDoctors()</code> charge
+          DoctorManagement.fxml
+        </li>
+        <li>
+          <strong>🚪 Déconnexion</strong> → <code>handleLogout()</code> retour
+          login
+        </li>
+      </ul>
+
+      <h3 class="file-title">👥 7.3 UserManagement.fxml</h3>
+      <p>
+        Vue de gestion des utilisateurs. Layout <code>VBox</code> global avec
+        <code>HBox</code> : Table + Formulaire.
+      </p>
+      <table>
+        <tr>
+          <th>Composant</th>
+          <th>fx:id</th>
+          <th>Rôle</th>
+        </tr>
+        <tr>
+          <td>TextField</td>
+          <td>searchField</td>
+          <td>Recherche temps réel (onKeyReleased)</td>
+        </tr>
+        <tr>
+          <td>Button</td>
+          <td>—</td>
+          <td>"+ Ajouter utilisateur" → showAddForm()</td>
+        </tr>
+        <tr>
+          <td>TableView</td>
+          <td>userTable</td>
+          <td>Liste des utilisateurs avec colonnes ID/Username/Rôle/Actions</td>
+        </tr>
+        <tr>
+          <td>TextField</td>
+          <td>usernameField</td>
+          <td>Formulaire : nom</td>
+        </tr>
+        <tr>
+          <td>PasswordField</td>
+          <td>passwordField</td>
+          <td>Formulaire : mot de passe</td>
+        </tr>
+        <tr>
+          <td>ComboBox</td>
+          <td>roleCombo</td>
+          <td>Sélection rôle (peuplé en Java, pas FXML)</td>
+        </tr>
+        <tr>
+          <td>Button</td>
+          <td>saveBtn / deleteBtn</td>
+          <td>Enregistrer / Supprimer</td>
+        </tr>
+      </table>
+
+      <h3 class="file-title">🩺 7.4 DoctorManagement.fxml</h3>
+      <p>
+        Même structure que UserManagement.fxml, avec champs spécifiques
+        médecins.
+      </p>
+      <table>
+        <tr>
+          <th>Champ supplémentaire</th>
+          <th>fx:id</th>
+          <th>Rôle</th>
+        </tr>
+        <tr>
+          <td>TextField nom</td>
+          <td>nomField</td>
+          <td>Nom du médecin</td>
+        </tr>
+        <tr>
+          <td>TextField prénom</td>
+          <td>prenomField</td>
+          <td>Prénom du médecin</td>
+        </tr>
+        <tr>
+          <td>TextField spécialité</td>
+          <td>specialiteField</td>
+          <td>Spécialité médicale</td>
+        </tr>
+        <tr>
+          <td>ComboBox utilisateur</td>
+          <td>userIdCombo</td>
+          <td>Association à un compte user</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 9 ══ -->
+    <div class="page">
+      <h2 class="section-title">8. Design — styles.css</h2>
+
+      <h3 class="file-title">🎨 8.1 Système de design</h3>
+      <p>Le fichier CSS définit tout le système visuel de l'application :</p>
+      <table>
+        <tr>
+          <th>Section CSS</th>
+          <th>Classes</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>Login</td>
+          <td>.login-card, .login-field, .login-btn, .login-error</td>
+          <td>Carte blanche, champs stylisés, bouton gradient bleu-violet</td>
+        </tr>
+        <tr>
+          <td>Sidebar</td>
+          <td>
+            .sidebar, .sidebar-btn, .sidebar-btn-active, .sidebar-logout-btn
+          </td>
+          <td>Fond #1e293b, boutons hover, actif avec barre bleue</td>
+        </tr>
+        <tr>
+          <td>Cards</td>
+          <td>.card, .stat-card, .stat-card-blue/green/orange</td>
+          <td>Cartes blanches, stat-cards colorées</td>
+        </tr>
+        <tr>
+          <td>Formulaires</td>
+          <td>.form-field, .form-combo, .form-label</td>
+          <td>Champs gris clair, focus bleu</td>
+        </tr>
+        <tr>
+          <td>Boutons</td>
+          <td>.btn-primary, .btn-success, .btn-danger, .btn-secondary</td>
+          <td>Gradients colorés avec effets hover</td>
+        </tr>
+        <tr>
+          <td>Table</td>
+          <td>.modern-table, .table-row-cell, .table-cell</td>
+          <td>Table moderne, lignes alternées, hover bleu</td>
+        </tr>
+        <tr>
+          <td>Badges</td>
+          <td>.badge-admin, .badge-secretary</td>
+          <td>Pills colorées pour les rôles</td>
+        </tr>
+      </table>
+
+      <h4>Palette de couleurs :</h4>
+      <table>
+        <tr>
+          <th>Couleur</th>
+          <th>Hex</th>
+          <th>Utilisation</th>
+        </tr>
+        <tr>
+          <td style="background: #3b82f6; color: white">■</td>
+          <td>#3b82f6</td>
+          <td>Bleu principal — boutons, focus, sidebar active</td>
+        </tr>
+        <tr>
+          <td style="background: #1e293b; color: white">■</td>
+          <td>#1e293b</td>
+          <td>Bleu nuit — sidebar, titres</td>
+        </tr>
+        <tr>
+          <td style="background: #10b981; color: white">■</td>
+          <td>#10b981</td>
+          <td>Vert — succès, badge secretary</td>
+        </tr>
+        <tr>
+          <td style="background: #ef4444; color: white">■</td>
+          <td>#ef4444</td>
+          <td>Rouge — erreurs, logout, danger</td>
+        </tr>
+        <tr>
+          <td style="background: #f59e0b; color: white">■</td>
+          <td>#f59e0b</td>
+          <td>Orange — warnings, stat-cards</td>
+        </tr>
+        <tr>
+          <td style="background: #6366f1; color: white">■</td>
+          <td>#6366f1</td>
+          <td>Violet — badge admin, gradient</td>
+        </tr>
+        <tr>
+          <td style="background: #f0f4f8">■</td>
+          <td>#f0f4f8</td>
+          <td>Fond global gris clair</td>
+        </tr>
+      </table>
+
+      <h4>Exemple — bouton gradient :</h4>
+      <div class="code">
+        .btn-primary { -fx-background-color: linear-gradient(to right, #3b82f6,
+        #6366f1); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding:
+        10 22 10 22; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 8,
+        0, 0, 3); -fx-cursor: hand; } .btn-primary:hover { -fx-background-color:
+        linear-gradient(to right, #2563eb, #4f46e5); -fx-effect:
+        dropshadow(gaussian, rgba(59,130,246,0.5), 12, 0, 0, 4); }
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 10 ══ -->
+    <div class="page">
+      <h2 class="section-title">9. Rôles & Sécurité</h2>
+
+      <h3 class="file-title">🛡 9.1 Système de rôles</h3>
+      <p>
+        L'application définit 3 rôles stockés dans la colonne
+        <code>role</code> de la table <code>users</code> :
+      </p>
+      <table>
+        <tr>
+          <th>Rôle</th>
+          <th>Accès login</th>
+          <th>Gestion utilisateurs</th>
+          <th>Gestion médecins</th>
+        </tr>
+        <tr>
+          <td><span class="badge-purple">admin</span></td>
+          <td>✅ Autorisé</td>
+          <td>✅ CRUD complet</td>
+          <td>✅ CRUD complet</td>
+        </tr>
+        <tr>
+          <td><span class="badge-green">secretary</span></td>
+          <td>✅ Autorisé</td>
+          <td>✅ CRUD complet</td>
+          <td>✅ CRUD complet</td>
+        </tr>
+        <tr>
+          <td><span class="badge-red">doctor</span></td>
+          <td>❌ Bloqué</td>
+          <td>❌ Pas d'accès</td>
+          <td>❌ Pas d'accès</td>
+        </tr>
+      </table>
+
+      <div class="info-box">
+        💡 <strong>Comptes par défaut créés lors du premier démarrage :</strong
+        ><br />
+        • <code>admin</code> / <code>admin123</code> — rôle : admin<br />
+        • <code>secretaire</code> / <code>sec123</code> — rôle : secretary
+      </div>
+
+      <h4>Implémentation du blocage role doctor :</h4>
+      <div class="code">
+        <span class="cm">// Dans LoginController.handleLogin()</span>
+        <span class="ty">User</span> user = authenticate(username, password);
+        <span class="kw">if</span> (user != <span class="nb">null</span>) {
+        <span class="cm"
+          >// Vérification du rôle AVANT d'ouvrir l'interface</span
+        >
+        <span class="kw">if</span> (<span class="st">"doctor"</span
+        >.equalsIgnoreCase(user.getRole())) { showError(<span class="st"
+          >"❌ Accès refusé. Seuls les admins et secrétaires."</span
+        >); passwordField.clear(); <span class="kw">return</span>;
+        <span class="cm">// stoppe la connexion</span>
+        }
+        <span class="cm"
+          >// Si admin ou secretary : continue vers MainView</span
+        >
+        <span class="ty">MainController</span>.setCurrentUser(user);
+        <span class="cm">// charge MainView.fxml...</span>
+        }
+      </div>
+
+      <h4>Points de sécurité à améliorer en production :</h4>
+      <table>
+        <tr>
+          <th>Point</th>
+          <th>État actuel</th>
+          <th>Recommandation</th>
+        </tr>
+        <tr>
+          <td>Mots de passe</td>
+          <td>Stockés en clair</td>
+          <td>Utiliser BCrypt (<code>jbcrypt</code>)</td>
+        </tr>
+        <tr>
+          <td>Credentials BDD</td>
+          <td>database.properties</td>
+          <td>Variables d'environnement / vault</td>
+        </tr>
+        <tr>
+          <td>Authorisation</td>
+          <td>Check au login seulement</td>
+          <td>Vérifier rôle sur chaque action</td>
+        </tr>
+        <tr>
+          <td>SSL/TLS</td>
+          <td>useSSL=false</td>
+          <td>Activer SSL Railway en prod</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ PAGE 11 ══ -->
+    <div class="page">
+      <h2 class="section-title">10. Base de Données MySQL Railway</h2>
+
+      <h3 class="file-title">🗄 10.1 Schéma des tables</h3>
+
+      <h4>Table users :</h4>
+      <div class="code">
+        <span class="kw">CREATE TABLE IF NOT EXISTS</span> users ( id
+        <span class="ty">INT</span> AUTO_INCREMENT
+        <span class="kw">PRIMARY KEY</span>, username
+        <span class="ty">VARCHAR</span>(100)
+        <span class="nb">UNIQUE NOT NULL</span>,
+        <span class="cm">-- unique, login</span> password
+        <span class="ty">VARCHAR</span>(255) <span class="nb">NOT NULL</span>,
+        <span class="cm">-- à hasher en prod</span> role
+        <span class="ty">ENUM</span>(<span class="st">'admin'</span>,<span
+          class="st"
+          >'secretary'</span
+        >,<span class="st">'doctor'</span>) <span class="nb">NOT NULL</span> );
+      </div>
+
+      <h4>Table doctors :</h4>
+      <div class="code">
+        <span class="kw">CREATE TABLE IF NOT EXISTS</span> doctors ( id
+        <span class="ty">INT</span> AUTO_INCREMENT
+        <span class="kw">PRIMARY KEY</span>, nom
+        <span class="ty">VARCHAR</span>(100) <span class="nb">NOT NULL</span>,
+        prenom <span class="ty">VARCHAR</span>(100)
+        <span class="nb">NOT NULL</span>, specialite
+        <span class="ty">VARCHAR</span>(100) <span class="nb">NOT NULL</span>,
+        user_id <span class="ty">INT</span>,
+        <span class="kw">FOREIGN KEY</span> (user_id)
+        <span class="kw">REFERENCES</span> users(id)
+        <span class="kw">ON DELETE SET NULL</span>
+        <span class="cm">-- si user supprimé, user_id = NULL</span> );
+      </div>
+
+      <h4>Relation entre tables :</h4>
+      <div class="arch">
+        users doctors ┌─────────────────────┐ ┌───────────────────────────────┐
+        │ id (PK) │◄────────│ user_id (FK, nullable) │ │ username │ │ id (PK) │
+        │ password │ │ nom │ │ role │ │ prenom │ └─────────────────────┘ │
+        specialite │ └───────────────────────────────┘ Un médecin peut être lié
+        à un compte utilisateur (optionnel)
+      </div>
+
+      <h3 class="file-title">🌐 10.2 Connexion Railway</h3>
+      <table>
+        <tr>
+          <th>Paramètre</th>
+          <th>Valeur</th>
+        </tr>
+        <tr>
+          <td>Host</td>
+          <td>ballast.proxy.rlwy.net</td>
+        </tr>
+        <tr>
+          <td>Port</td>
+          <td>49937</td>
+        </tr>
+        <tr>
+          <td>Base de données</td>
+          <td>gestion_medical</td>
+        </tr>
+        <tr>
+          <td>Utilisateur</td>
+          <td>root</td>
+        </tr>
+        <tr>
+          <td>useSSL</td>
+          <td>false (dev)</td>
+        </tr>
+        <tr>
+          <td>serverTimezone</td>
+          <td>UTC</td>
+        </tr>
+      </table>
+
+      <div class="info-box">
+        💡 <strong>Railway</strong> est un service cloud PaaS qui héberge la
+        base de données MySQL. Le proxy
+        <code>ballast.proxy.rlwy.net:49937</code> redirige vers l'instance MySQL
+        interne. HikariCP maintient le pool de connexions actif avec des
+        health-checks périodiques (<code>connectionTestQuery</code>).
+      </div>
+
+      <h3 class="file-title">⚡ Résumé des fichiers et leurs rôles</h3>
+      <table>
+        <tr>
+          <th>Fichier</th>
+          <th>Package/Dossier</th>
+          <th>Rôle en une ligne</th>
+        </tr>
+        <tr>
+          <td>pom.xml</td>
+          <td>racine</td>
+          <td>Dépendances Maven (JavaFX, HikariCP, MySQL)</td>
+        </tr>
+        <tr>
+          <td>module-info.java</td>
+          <td>src/main/java</td>
+          <td>Déclaration module Java 9+</td>
+        </tr>
+        <tr>
+          <td>database.properties</td>
+          <td>resources</td>
+          <td>Credentials BDD Railway</td>
+        </tr>
+        <tr>
+          <td>init_database.sql</td>
+          <td>resources</td>
+          <td>Script SQL création tables</td>
+        </tr>
+        <tr>
+          <td>Main.java</td>
+          <td>application</td>
+          <td>Point d'entrée JavaFX</td>
+        </tr>
+        <tr>
+          <td>DatabaseConnection.java</td>
+          <td>application</td>
+          <td>Pool HikariCP singleton</td>
+        </tr>
+        <tr>
+          <td>DatabaseInitializer.java</td>
+          <td>application</td>
+          <td>Exécute SQL au démarrage</td>
+        </tr>
+        <tr>
+          <td>User.java</td>
+          <td>models</td>
+          <td>Modèle POJO utilisateur</td>
+        </tr>
+        <tr>
+          <td>Doctor.java</td>
+          <td>models</td>
+          <td>Modèle POJO médecin</td>
+        </tr>
+        <tr>
+          <td>LoginController.java</td>
+          <td>controllers</td>
+          <td>Auth + blocage role doctor</td>
+        </tr>
+        <tr>
+          <td>MainController.java</td>
+          <td>controllers</td>
+          <td>Navigation sidebar + dashboard</td>
+        </tr>
+        <tr>
+          <td>UserController.java</td>
+          <td>controllers</td>
+          <td>CRUD utilisateurs + recherche</td>
+        </tr>
+        <tr>
+          <td>DoctorController.java</td>
+          <td>controllers</td>
+          <td>CRUD médecins + recherche</td>
+        </tr>
+        <tr>
+          <td>login.fxml</td>
+          <td>resources/fxml</td>
+          <td>Vue connexion 520×480</td>
+        </tr>
+        <tr>
+          <td>MainView.fxml</td>
+          <td>resources/fxml</td>
+          <td>Sidebar + zone contenu dynamique</td>
+        </tr>
+        <tr>
+          <td>UserManagement.fxml</td>
+          <td>resources/fxml</td>
+          <td>Table + formulaire utilisateurs</td>
+        </tr>
+        <tr>
+          <td>DoctorManagement.fxml</td>
+          <td>resources/fxml</td>
+          <td>Table + formulaire médecins</td>
+        </tr>
+        <tr>
+          <td>styles.css</td>
+          <td>resources/fxml</td>
+          <td>Design système complet</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,367 +1,236 @@
 package com.example.gestion_medicale.controllers;
+
 import com.example.gestion_medicale.DatabaseConnection;
 import com.example.gestion_medicale.models.Doctor;
+import com.example.gestion_medicale.models.Specialite;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 
-import java.net.URL;
 import java.sql.*;
-import java.util.ResourceBundle;
 
-/**
- * Contrôleur CRUD pour les médecins - Design moderne
- */
-public class DoctorController implements Initializable {
+public class DoctorController {
 
-    // Table
-    @FXML private TableView<Doctor> doctorTable;
+    @FXML private TableView<Doctor> tableDoctors;
     @FXML private TableColumn<Doctor, Integer> colId;
-    @FXML private TableColumn<Doctor, String>  colNom;
-    @FXML private TableColumn<Doctor, String>  colPrenom;
-    @FXML private TableColumn<Doctor, String>  colSpecialite;
-    @FXML private TableColumn<Doctor, Integer> colUserId;
-    @FXML private TableColumn<Doctor, Void>    colActions;
+    @FXML private TableColumn<Doctor, String> colNom;
+    @FXML private TableColumn<Doctor, String> colSpecialite;
+    @FXML private TextField txtNom;
+    @FXML private PasswordField txtMotDePasse;
+    @FXML private ComboBox<Specialite> cmbSpecialite;
+    @FXML private Label lblMessage;
 
-    // Search & count
-    @FXML private TextField searchField;
-    @FXML private Label     countLabel;
+    private ObservableList<Doctor> doctorList = FXCollections.observableArrayList();
+    private ObservableList<Specialite> specialiteList = FXCollections.observableArrayList();
+    private Doctor selectedDoctor;
 
-    // Form fields
-    @FXML private TextField nomField;
-    @FXML private TextField prenomField;
-    @FXML private TextField specialiteField;
-    @FXML private ComboBox<String> userIdCombo;
-    @FXML private TextField idField;
-
-    // Form UI
-    @FXML private Label   formTitle;
-    @FXML private Label   messageLabel;
-    @FXML private Button  saveBtn;
-    @FXML private Button  deleteBtn;
-
-    private final ObservableList<Doctor> doctorList = FXCollections.observableArrayList();
-    private boolean isEditMode = false;
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        setupTable();
-        loadUsersIntoCombo();
-        loadDoctors();
-        clearForm();
-    }
-
-    // ===== TABLE SETUP =====
-
-    private void setupTable() {
+    @FXML
+    public void initialize() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenom"));
-        colSpecialite.setCellValueFactory(new PropertyValueFactory<>("specialite"));
-        colUserId.setCellValueFactory(new PropertyValueFactory<>("userId"));
+        colSpecialite.setCellValueFactory(new PropertyValueFactory<>("nomSpecialite"));
 
-        // Specialite column with teal badge
-        colSpecialite.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String spec, boolean empty) {
-                super.updateItem(spec, empty);
-                if (empty || spec == null) {
-                    setGraphic(null); setText(null);
-                } else {
-                    Label badge = new Label(spec);
-                    badge.setStyle(
-                        "-fx-background-color: rgba(6,182,212,0.12);" +
-                        "-fx-text-fill: #0891b2;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-padding: 3 10 3 10;" +
-                        "-fx-font-size: 11px;" +
-                        "-fx-font-weight: bold;"
-                    );
-                    setGraphic(badge);
-                    setText(null);
-                }
+        cmbSpecialite.setItems(specialiteList);
+
+        tableDoctors.setItems(doctorList);
+        tableDoctors.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
+            if (newVal != null) {
+                selectedDoctor = newVal;
+                txtNom.setText(newVal.getNom());
+                txtMotDePasse.clear();
+                // Select specialite in combo
+                specialiteList.stream()
+                        .filter(s -> s.getId() == newVal.getIdSpecialite())
+                        .findFirst()
+                        .ifPresent(cmbSpecialite::setValue);
             }
         });
 
-        // Actions column
-        colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button editBtn = new Button("✏ Modifier");
-            private final Button delBtn  = new Button("🗑 Supprimer");
-            private final HBox   box     = new HBox(6, editBtn, delBtn);
-
-            {
-                box.setAlignment(Pos.CENTER_LEFT);
-                editBtn.setStyle(
-                    "-fx-background-color: rgba(59,130,246,0.1);" +
-                    "-fx-text-fill: #3b82f6;" +
-                    "-fx-background-radius: 6;" +
-                    "-fx-padding: 4 10 4 10;" +
-                    "-fx-font-size: 11px;" +
-                    "-fx-cursor: hand;"
-                );
-                delBtn.setStyle(
-                    "-fx-background-color: rgba(239,68,68,0.1);" +
-                    "-fx-text-fill: #ef4444;" +
-                    "-fx-background-radius: 6;" +
-                    "-fx-padding: 4 10 4 10;" +
-                    "-fx-font-size: 11px;" +
-                    "-fx-cursor: hand;"
-                );
-                editBtn.setOnAction(e -> {
-                    Doctor d = getTableView().getItems().get(getIndex());
-                    populateForm(d);
-                });
-                delBtn.setOnAction(e -> {
-                    Doctor d = getTableView().getItems().get(getIndex());
-                    confirmDelete(d);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : box);
-            }
-        });
-
-        doctorTable.setItems(doctorList);
+        loadSpecialites();
+        loadDoctors();
     }
 
-    // ===== LOAD DATA =====
-
-    private void loadUsersIntoCombo() {
-        ObservableList<String> userOptions = FXCollections.observableArrayList();
-        String sql = "SELECT id, username FROM users ORDER BY username";
+    private void loadSpecialites() {
+        specialiteList.clear();
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery("SELECT id, nom, description FROM Specialite ORDER BY nom")) {
             while (rs.next()) {
-                userOptions.add(rs.getInt("id") + " — " + rs.getString("username"));
-            }
-        } catch (SQLException e) {
-            // silent
-        }
-        userIdCombo.setItems(userOptions);
-    }
-
-    private void loadDoctors() {
-        doctorList.clear();
-        String sql = "SELECT id, nom, prenom, specialite, user_id FROM doctors ORDER BY id DESC";
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                doctorList.add(new Doctor(
-                    rs.getInt("id"),
-                    rs.getString("nom"),
-                    rs.getString("prenom"),
-                    rs.getString("specialite"),
-                    rs.getInt("user_id")
+                specialiteList.add(new Specialite(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("description")
                 ));
             }
         } catch (SQLException e) {
-            showMessage("Erreur de chargement : " + e.getMessage(), false);
+            showMessage("Erreur chargement spécialités: " + e.getMessage(), true);
         }
-        updateCount();
     }
 
-    private void updateCount() {
-        countLabel.setText(doctorList.size() + " médecin(s)");
-    }
-
-    // ===== SEARCH =====
-
-    @FXML
-    private void handleSearch() {
-        String q = searchField.getText().trim().toLowerCase();
-        if (q.isEmpty()) {
-            doctorTable.setItems(doctorList);
-            countLabel.setText(doctorList.size() + " médecin(s)");
-            return;
-        }
-        ObservableList<Doctor> filtered = FXCollections.observableArrayList();
-        for (Doctor d : doctorList) {
-            if (d.getNom().toLowerCase().contains(q) ||
-                d.getPrenom().toLowerCase().contains(q) ||
-                d.getSpecialite().toLowerCase().contains(q)) {
-                filtered.add(d);
+    public void loadDoctors() {
+        doctorList.clear();
+        String sql = """
+                SELECT u.id, u.nom, u.motDePasse, m.id_specialite, s.nom AS nomSpec
+                FROM Utilisateur u
+                JOIN Medecin m ON u.id = m.id_utilisateur
+                LEFT JOIN Specialite s ON m.id_specialite = s.id
+                ORDER BY u.nom
+                """;
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Doctor d = new Doctor(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("motDePasse"),
+                        rs.getInt("id_specialite"),
+                        rs.getString("nomSpec")
+                );
+                doctorList.add(d);
             }
+        } catch (SQLException e) {
+            showMessage("Erreur: " + e.getMessage(), true);
         }
-        doctorTable.setItems(filtered);
-        countLabel.setText(filtered.size() + " résultat(s)");
-    }
-
-    // ===== FORM ACTIONS =====
-
-    @FXML
-    private void showAddForm() {
-        clearForm();
-        formTitle.setText("➕ Ajouter un médecin");
-        saveBtn.setText("💾  Enregistrer");
-        deleteBtn.setVisible(false);
-        deleteBtn.setManaged(false);
     }
 
     @FXML
-    private void onTableRowSelected() {
-        Doctor selected = doctorTable.getSelectionModel().getSelectedItem();
-        if (selected != null) populateForm(selected);
-    }
+    private void handleAjouter() {
+        String nom = txtNom.getText().trim();
+        String mdp = txtMotDePasse.getText().trim();
+        Specialite spec = cmbSpecialite.getValue();
 
-    private void populateForm(Doctor d) {
-        isEditMode = true;
-        formTitle.setText("✏ Modifier le médecin");
-        idField.setText(String.valueOf(d.getId()));
-        nomField.setText(d.getNom());
-        prenomField.setText(d.getPrenom());
-        specialiteField.setText(d.getSpecialite());
-        // Select matching user in combo
-        for (String item : userIdCombo.getItems()) {
-            if (item.startsWith(d.getUserId() + " — ")) {
-                userIdCombo.setValue(item);
-                break;
-            }
-        }
-        saveBtn.setText("💾  Mettre à jour");
-        deleteBtn.setVisible(true);
-        deleteBtn.setManaged(true);
-        hideMessage();
-    }
-
-    @FXML
-    private void handleSave() {
-        String nom        = nomField.getText().trim();
-        String prenom     = prenomField.getText().trim();
-        String specialite = specialiteField.getText().trim();
-        String userSel    = userIdCombo.getValue();
-
-        if (nom.isEmpty() || prenom.isEmpty() || specialite.isEmpty() || userSel == null) {
-            showMessage("⚠ Veuillez remplir tous les champs.", false);
+        if (nom.isEmpty() || mdp.isEmpty()) {
+            showMessage("Nom et mot de passe sont obligatoires.", true);
             return;
         }
 
-        int userId = Integer.parseInt(userSel.split(" — ")[0]);
-
-        if (isEditMode) {
-            updateDoctor(Integer.parseInt(idField.getText()), nom, prenom, specialite, userId);
-        } else {
-            addDoctor(nom, prenom, specialite, userId);
-        }
-    }
-
-    private void addDoctor(String nom, String prenom, String specialite, int userId) {
-        String sql = "INSERT INTO doctors (nom, prenom, specialite, user_id) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, nom);
-            ps.setString(2, prenom);
-            ps.setString(3, specialite);
-            ps.setInt(4, userId);
-            ps.executeUpdate();
-            showMessage("✅ Dr " + prenom + " " + nom + " ajouté avec succès.", true);
-            loadDoctors();
-            clearForm();
+        String sqlUser = "INSERT INTO Utilisateur (nom, motDePasse, role) VALUES (?, ?, 'MEDECIN')";
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, nom);
+                stmt.setString(2, mdp);
+                stmt.executeUpdate();
+                ResultSet keys = stmt.getGeneratedKeys();
+                if (keys.next()) {
+                    int newId = keys.getInt(1);
+                    String sqlMed = "INSERT INTO Medecin (id_utilisateur, id_specialite) VALUES (?, ?)";
+                    try (PreparedStatement mStmt = conn.prepareStatement(sqlMed)) {
+                        mStmt.setInt(1, newId);
+                        if (spec != null) {
+                            mStmt.setInt(2, spec.getId());
+                        } else {
+                            mStmt.setNull(2, Types.INTEGER);
+                        }
+                        mStmt.executeUpdate();
+                    }
+                }
+                conn.commit();
+                showMessage("Médecin ajouté avec succès.", false);
+                handleEffacer();
+                loadDoctors();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            }
         } catch (SQLException e) {
-            showMessage("❌ Erreur : " + e.getMessage(), false);
+            showMessage("Erreur: " + e.getMessage(), true);
         }
     }
 
-    private void updateDoctor(int id, String nom, String prenom, String specialite, int userId) {
-        String sql = "UPDATE doctors SET nom=?, prenom=?, specialite=?, user_id=? WHERE id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, nom);
-            ps.setString(2, prenom);
-            ps.setString(3, specialite);
-            ps.setInt(4, userId);
-            ps.setInt(5, id);
-            ps.executeUpdate();
-            showMessage("✅ Médecin mis à jour avec succès.", true);
+    @FXML
+    private void handleModifier() {
+        if (selectedDoctor == null) {
+            showMessage("Sélectionnez un médecin.", true);
+            return;
+        }
+        String nom = txtNom.getText().trim();
+        Specialite spec = cmbSpecialite.getValue();
+
+        if (nom.isEmpty()) {
+            showMessage("Le nom est obligatoire.", true);
+            return;
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            String mdp = txtMotDePasse.getText().trim();
+            if (!mdp.isEmpty()) {
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE Utilisateur SET nom=?, motDePasse=? WHERE id=?")) {
+                    stmt.setString(1, nom);
+                    stmt.setString(2, mdp);
+                    stmt.setInt(3, selectedDoctor.getId());
+                    stmt.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE Utilisateur SET nom=? WHERE id=?")) {
+                    stmt.setString(1, nom);
+                    stmt.setInt(2, selectedDoctor.getId());
+                    stmt.executeUpdate();
+                }
+            }
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "UPDATE Medecin SET id_specialite=? WHERE id_utilisateur=?")) {
+                if (spec != null) {
+                    stmt.setInt(1, spec.getId());
+                } else {
+                    stmt.setNull(1, Types.INTEGER);
+                }
+                stmt.setInt(2, selectedDoctor.getId());
+                stmt.executeUpdate();
+            }
+            conn.commit();
+            showMessage("Médecin modifié.", false);
+            handleEffacer();
             loadDoctors();
-            clearForm();
         } catch (SQLException e) {
-            showMessage("❌ Erreur : " + e.getMessage(), false);
+            showMessage("Erreur: " + e.getMessage(), true);
         }
     }
 
-    private void confirmDelete(Doctor d) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmer la suppression");
-        alert.setHeaderText("Supprimer Dr « " + d.getPrenom() + " " + d.getNom() + " » ?");
-        alert.setContentText("Cette action est irréversible.");
+    @FXML
+    private void handleSupprimer() {
+        if (selectedDoctor == null) {
+            showMessage("Sélectionnez un médecin.", true);
+            return;
+        }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Supprimer le Dr. " + selectedDoctor.getNom() + " ?",
+                ButtonType.YES, ButtonType.NO);
         alert.showAndWait().ifPresent(btn -> {
-            if (btn == ButtonType.OK) deleteDoctor(d.getId(), d.getNom());
+            if (btn == ButtonType.YES) {
+                try (Connection conn = DatabaseConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(
+                             "DELETE FROM Utilisateur WHERE id=?")) {
+                    stmt.setInt(1, selectedDoctor.getId());
+                    stmt.executeUpdate();
+                    showMessage("Médecin supprimé.", false);
+                    handleEffacer();
+                    loadDoctors();
+                } catch (SQLException e) {
+                    showMessage("Erreur: " + e.getMessage(), true);
+                }
+            }
         });
     }
 
     @FXML
-    private void handleDelete() {
-        if (!idField.getText().isEmpty()) {
-            Doctor d = new Doctor(
-                Integer.parseInt(idField.getText()),
-                nomField.getText(), prenomField.getText(),
-                specialiteField.getText(), 0
-            );
-            confirmDelete(d);
-        }
+    private void handleEffacer() {
+        txtNom.clear();
+        txtMotDePasse.clear();
+        cmbSpecialite.setValue(null);
+        selectedDoctor = null;
+        tableDoctors.getSelectionModel().clearSelection();
+        lblMessage.setText("");
     }
 
-    private void deleteDoctor(int id, String nom) {
-        String sql = "DELETE FROM doctors WHERE id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            showMessage("✅ Médecin '" + nom + "' supprimé.", true);
-            loadDoctors();
-            clearForm();
-        } catch (SQLException e) {
-            showMessage("❌ Erreur : " + e.getMessage(), false);
-        }
-    }
-
-    @FXML
-    private void handleCancel() {
-        clearForm();
-        hideMessage();
-        doctorTable.getSelectionModel().clearSelection();
-    }
-
-    // ===== HELPERS =====
-
-    private void clearForm() {
-        isEditMode = false;
-        formTitle.setText("➕ Ajouter un médecin");
-        idField.clear();
-        nomField.clear();
-        prenomField.clear();
-        specialiteField.clear();
-        if (userIdCombo != null) userIdCombo.setValue(null);
-        saveBtn.setText("💾  Enregistrer");
-        deleteBtn.setVisible(false);
-        deleteBtn.setManaged(false);
-        hideMessage();
-    }
-
-    private void showMessage(String msg, boolean success) {
-        messageLabel.setText(msg);
-        messageLabel.setStyle(success
-            ? "-fx-background-color: rgba(16,185,129,0.1); -fx-text-fill: #059669;" +
-              "-fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-font-size: 13px; -fx-font-weight: bold;"
-            : "-fx-background-color: rgba(239,68,68,0.1); -fx-text-fill: #dc2626;" +
-              "-fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-font-size: 13px; -fx-font-weight: bold;"
-        );
-        messageLabel.setVisible(true);
-        messageLabel.setManaged(true);
-    }
-
-    private void hideMessage() {
-        messageLabel.setVisible(false);
-        messageLabel.setManaged(false);
+    private void showMessage(String msg, boolean error) {
+        lblMessage.setText(msg);
+        lblMessage.setStyle(error ? "-fx-text-fill: #e74c3c;" : "-fx-text-fill: #27ae60;");
     }
 }

@@ -5,323 +5,194 @@ import com.example.gestion_medicale.models.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 
-import java.net.URL;
 import java.sql.*;
-import java.util.ResourceBundle;
-public class UserController implements Initializable {
-    @FXML private TableView<User> userTable;
+
+public class UserController {
+
+    @FXML private TableView<User> tableUsers;
     @FXML private TableColumn<User, Integer> colId;
-    @FXML private TableColumn<User, String>  colUsername;
-    @FXML private TableColumn<User, String>  colRole;
-    @FXML private TableColumn<User, Void>    colActions;
-    @FXML private TextField searchField;
-    @FXML private Label     countLabel;
-    @FXML private TextField     usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private ComboBox<String> roleCombo;
-    @FXML private TextField     idField;
-    @FXML private Label         formTitle;
-    @FXML private Label         messageLabel;
-    @FXML private Button        saveBtn;
-    @FXML private Button        deleteBtn;
+    @FXML private TableColumn<User, String> colNom;
+    @FXML private TableColumn<User, String> colRole;
+    @FXML private TextField txtNom;
+    @FXML private PasswordField txtMotDePasse;
+    @FXML private ComboBox<String> cmbRole;
+    @FXML private Label lblMessage;
 
-    private final ObservableList<User> userList = FXCollections.observableArrayList();
-    private boolean isEditMode = false;
+    private ObservableList<User> userList = FXCollections.observableArrayList();
+    private User selectedUser;
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        roleCombo.getItems().addAll("admin", "secretary");
-        setupTable();
-        loadUsers();
-        clearForm();
-    }
-    private void setupTable() {
+    @FXML
+    public void initialize() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-        colRole.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String role, boolean empty) {
-                super.updateItem(role, empty);
-                if (empty || role == null) {
-                    setGraphic(null); setText(null);
-                } else {
-                    Label badge = new Label(role);
-                    if ("admin".equals(role)) {
-                        badge.setStyle(
-                            "-fx-background-color: rgba(99,102,241,0.15);" +
-                            "-fx-text-fill: #6366f1;" +
-                            "-fx-background-radius: 20;" +
-                            "-fx-padding: 3 10 3 10;" +
-                            "-fx-font-size: 11px;" +
-                            "-fx-font-weight: bold;"
-                        );
-                    } else {
-                        badge.setStyle(
-                            "-fx-background-color: rgba(16,185,129,0.15);" +
-                            "-fx-text-fill: #10b981;" +
-                            "-fx-background-radius: 20;" +
-                            "-fx-padding: 3 10 3 10;" +
-                            "-fx-font-size: 11px;" +
-                            "-fx-font-weight: bold;"
-                        );
-                    }
-                    setGraphic(badge);
-                    setText(null);
-                }
-            }
-        });
-        colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button editBtn   = new Button("✏ Modifier");
-            private final Button delBtn    = new Button("🗑 Supprimer");
-            private final HBox   box       = new HBox(6, editBtn, delBtn);
 
-            {
-                box.setAlignment(Pos.CENTER_LEFT);
-                editBtn.setStyle(
-                    "-fx-background-color: rgba(59,130,246,0.1);" +
-                    "-fx-text-fill: #3b82f6;" +
-                    "-fx-background-radius: 6;" +
-                    "-fx-padding: 4 10 4 10;" +
-                    "-fx-font-size: 11px;" +
-                    "-fx-cursor: hand;"
-                );
-                delBtn.setStyle(
-                    "-fx-background-color: rgba(239,68,68,0.1);" +
-                    "-fx-text-fill: #ef4444;" +
-                    "-fx-background-radius: 6;" +
-                    "-fx-padding: 4 10 4 10;" +
-                    "-fx-font-size: 11px;" +
-                    "-fx-cursor: hand;"
-                );
-                editBtn.setOnAction(e -> {
-                    User u = getTableView().getItems().get(getIndex());
-                    populateForm(u);
-                });
-                delBtn.setOnAction(e -> {
-                    User u = getTableView().getItems().get(getIndex());
-                    confirmDelete(u);
-                });
-            }
+        cmbRole.setItems(FXCollections.observableArrayList("ADMIN", "SECRETAIRE", "MEDECIN"));
 
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : box);
+        tableUsers.setItems(userList);
+        tableUsers.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
+            if (newVal != null) {
+                selectedUser = newVal;
+                txtNom.setText(newVal.getNom());
+                cmbRole.setValue(newVal.getRole());
+                txtMotDePasse.clear();
             }
         });
 
-        userTable.setItems(userList);
+        loadUsers();
     }
 
     private void loadUsers() {
         userList.clear();
-        String sql = "SELECT id, username, role FROM users ORDER BY id DESC";
+        String sql = "SELECT id, nom, motDePasse, role FROM Utilisateur ORDER BY nom";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-
             while (rs.next()) {
                 userList.add(new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    "",
-                    rs.getString("role")
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("motDePasse"),
+                        rs.getString("role")
                 ));
             }
         } catch (SQLException e) {
-            showMessage("Erreur de chargement : " + e.getMessage(), false);
+            showMessage("Erreur de chargement: " + e.getMessage(), true);
         }
-        updateCount();
-    }
-
-    private void updateCount() {
-        countLabel.setText(userList.size() + " utilisateur(s)");
     }
 
     @FXML
-    private void handleSearch() {
-        String q = searchField.getText().trim().toLowerCase();
-        if (q.isEmpty()) {
-            userTable.setItems(userList);
-            countLabel.setText(userList.size() + " utilisateur(s)");
+    private void handleAjouter() {
+        String nom = txtNom.getText().trim();
+        String mdp = txtMotDePasse.getText().trim();
+        String role = cmbRole.getValue();
+
+        if (nom.isEmpty() || mdp.isEmpty() || role == null) {
+            showMessage("Veuillez remplir tous les champs.", true);
             return;
         }
-        ObservableList<User> filtered = FXCollections.observableArrayList();
-        for (User u : userList) {
-            if (u.getUsername().toLowerCase().contains(q) ||
-                u.getRole().toLowerCase().contains(q)) {
-                filtered.add(u);
+
+        String sqlUser = "INSERT INTO Utilisateur (nom, motDePasse, role) VALUES (?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, nom);
+                stmt.setString(2, mdp);
+                stmt.setString(3, role);
+                stmt.executeUpdate();
+                ResultSet keys = stmt.getGeneratedKeys();
+                if (keys.next()) {
+                    int newId = keys.getInt(1);
+                    String sqlRole = switch (role) {
+                        case "ADMIN" -> "INSERT INTO Admin (id_utilisateur) VALUES (?)";
+                        case "SECRETAIRE" -> "INSERT INTO Secretaire (id_utilisateur) VALUES (?)";
+                        case "MEDECIN" -> "INSERT INTO Medecin (id_utilisateur) VALUES (?)";
+                        default -> null;
+                    };
+                    if (sqlRole != null) {
+                        try (PreparedStatement roleStmt = conn.prepareStatement(sqlRole)) {
+                            roleStmt.setInt(1, newId);
+                            roleStmt.executeUpdate();
+                        }
+                    }
+                }
+                conn.commit();
+                showMessage("Utilisateur ajouté avec succès.", false);
+                handleEffacer();
+                loadUsers();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
             }
+        } catch (SQLException e) {
+            showMessage("Erreur: " + e.getMessage(), true);
         }
-        userTable.setItems(filtered);
-        countLabel.setText(filtered.size() + " résultat(s)");
     }
 
     @FXML
-    private void showAddForm() {
-        clearForm();
-        isEditMode = false;
-        formTitle.setText("➕ Ajouter un utilisateur");
-        saveBtn.setText("💾  Enregistrer");
-        deleteBtn.setVisible(false);
-        deleteBtn.setManaged(false);
-    }
-
-    @FXML
-    private void onTableRowSelected() {
-        User selected = userTable.getSelectionModel().getSelectedItem();
-        if (selected != null) populateForm(selected);
-    }
-
-    private void populateForm(User u) {
-        isEditMode = true;
-        formTitle.setText("✏ Modifier l'utilisateur");
-        idField.setText(String.valueOf(u.getId()));
-        usernameField.setText(u.getUsername());
-        passwordField.clear();
-        roleCombo.setValue(u.getRole());
-        saveBtn.setText("💾  Mettre à jour");
-        deleteBtn.setVisible(true);
-        deleteBtn.setManaged(true);
-        hideMessage();
-    }
-
-    @FXML
-    private void handleSave() {
-        String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
-        String role     = roleCombo.getValue();
-
-        if (username.isEmpty() || role == null) {
-            showMessage("⚠ Veuillez remplir tous les champs obligatoires.", false);
+    private void handleModifier() {
+        if (selectedUser == null) {
+            showMessage("Sélectionnez un utilisateur.", true);
             return;
         }
-        if (!isEditMode && password.isEmpty()) {
-            showMessage("⚠ Le mot de passe est requis pour un nouvel utilisateur.", false);
+        String nom = txtNom.getText().trim();
+        String role = cmbRole.getValue();
+
+        if (nom.isEmpty() || role == null) {
+            showMessage("Veuillez remplir les champs nom et rôle.", true);
             return;
         }
 
-        if (isEditMode) {
-            updateUser(Integer.parseInt(idField.getText()), username, password, role);
+        String sql;
+        String mdp = txtMotDePasse.getText().trim();
+        if (!mdp.isEmpty()) {
+            sql = "UPDATE Utilisateur SET nom=?, motDePasse=?, role=? WHERE id=?";
         } else {
-            addUser(username, password, role);
+            sql = "UPDATE Utilisateur SET nom=?, role=? WHERE id=?";
         }
-    }
 
-    private void addUser(String username, String password, String role) {
-        String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ps.setString(3, role);
-            ps.executeUpdate();
-            showMessage("✅ Utilisateur '" + username + "' ajouté avec succès.", true);
-            loadUsers();
-            clearForm();
-        } catch (SQLException e) {
-            showMessage("❌ Erreur : " + e.getMessage(), false);
-        }
-    }
-
-    private void updateUser(int id, String username, String password, String role) {
-        String sql = password.isEmpty()
-            ? "UPDATE users SET username=?, role=? WHERE id=?"
-            : "UPDATE users SET username=?, password=?, role=? WHERE id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (password.isEmpty()) {
-                ps.setString(1, username);
-                ps.setString(2, role);
-                ps.setInt(3, id);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            if (!mdp.isEmpty()) {
+                stmt.setString(1, nom);
+                stmt.setString(2, mdp);
+                stmt.setString(3, role);
+                stmt.setInt(4, selectedUser.getId());
             } else {
-                ps.setString(1, username);
-                ps.setString(2, password);
-                ps.setString(3, role);
-                ps.setInt(4, id);
+                stmt.setString(1, nom);
+                stmt.setString(2, role);
+                stmt.setInt(3, selectedUser.getId());
             }
-            ps.executeUpdate();
-            showMessage("✅ Utilisateur mis à jour avec succès.", true);
+            stmt.executeUpdate();
+            showMessage("Utilisateur modifié avec succès.", false);
+            handleEffacer();
             loadUsers();
-            clearForm();
         } catch (SQLException e) {
-            showMessage("❌ Erreur : " + e.getMessage(), false);
+            showMessage("Erreur: " + e.getMessage(), true);
         }
     }
 
-    private void confirmDelete(User u) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmer la suppression");
-        alert.setHeaderText("Supprimer l'utilisateur « " + u.getUsername() + " » ?");
-        alert.setContentText("Cette action est irréversible.");
+    @FXML
+    private void handleSupprimer() {
+        if (selectedUser == null) {
+            showMessage("Sélectionnez un utilisateur.", true);
+            return;
+        }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Supprimer l'utilisateur \"" + selectedUser.getNom() + "\" ?",
+                ButtonType.YES, ButtonType.NO);
         alert.showAndWait().ifPresent(btn -> {
-            if (btn == ButtonType.OK) deleteUser(u.getId(), u.getUsername());
+            if (btn == ButtonType.YES) {
+                try (Connection conn = DatabaseConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(
+                             "DELETE FROM Utilisateur WHERE id=?")) {
+                    stmt.setInt(1, selectedUser.getId());
+                    stmt.executeUpdate();
+                    showMessage("Utilisateur supprimé.", false);
+                    handleEffacer();
+                    loadUsers();
+                } catch (SQLException e) {
+                    showMessage("Erreur: " + e.getMessage(), true);
+                }
+            }
         });
     }
 
     @FXML
-    private void handleDelete() {
-        if (!idField.getText().isEmpty()) {
-            String username = usernameField.getText();
-            confirmDelete(new User(Integer.parseInt(idField.getText()), username, "", ""));
-        }
+    private void handleEffacer() {
+        txtNom.clear();
+        txtMotDePasse.clear();
+        cmbRole.setValue(null);
+        selectedUser = null;
+        tableUsers.getSelectionModel().clearSelection();
+        lblMessage.setText("");
     }
 
-    private void deleteUser(int id, String username) {
-        String sql = "DELETE FROM users WHERE id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            showMessage("✅ Utilisateur '" + username + "' supprimé.", true);
-            loadUsers();
-            clearForm();
-        } catch (SQLException e) {
-            showMessage("❌ Erreur : " + e.getMessage(), false);
-        }
-    }
-
-    @FXML
-    private void handleCancel() {
-        clearForm();
-        hideMessage();
-        userTable.getSelectionModel().clearSelection();
-    }
-
-    private void clearForm() {
-        isEditMode = false;
-        formTitle.setText("➕ Ajouter un utilisateur");
-        idField.clear();
-        usernameField.clear();
-        passwordField.clear();
-        if (roleCombo != null) roleCombo.setValue(null);
-        saveBtn.setText("💾  Enregistrer");
-        deleteBtn.setVisible(false);
-        deleteBtn.setManaged(false);
-        hideMessage();
-    }
-
-    private void showMessage(String msg, boolean success) {
-        messageLabel.setText(msg);
-        messageLabel.setStyle(success
-            ? "-fx-background-color: rgba(16,185,129,0.1); -fx-text-fill: #059669;" +
-              "-fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-font-size: 13px; -fx-font-weight: bold;"
-            : "-fx-background-color: rgba(239,68,68,0.1); -fx-text-fill: #dc2626;" +
-              "-fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-font-size: 13px; -fx-font-weight: bold;"
-        );
-        messageLabel.setVisible(true);
-        messageLabel.setManaged(true);
-    }
-
-    private void hideMessage() {
-        messageLabel.setVisible(false);
-        messageLabel.setManaged(false);
+    private void showMessage(String msg, boolean error) {
+        lblMessage.setText(msg);
+        lblMessage.setStyle(error ? "-fx-text-fill: #e74c3c;" : "-fx-text-fill: #27ae60;");
     }
 }

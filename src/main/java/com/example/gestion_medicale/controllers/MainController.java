@@ -1,131 +1,107 @@
 package com.example.gestion_medicale.controllers;
 
-import com.example.gestion_medicale.DatabaseConnection;
-import com.example.gestion_medicale.models.User;
+import com.example.gestion_medicale.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ResourceBundle;
-public class MainController implements Initializable {
-    @FXML private Button btnDashboard;
-    @FXML private Button btnUsers;
-    @FXML private Button btnDoctors;
-    @FXML private Label pageTitle;
-    @FXML private Label topUserBadge;
-    @FXML private Label loggedUserLabel;
-    @FXML private Label loggedRoleLabel;
-    @FXML private Label userInitialLabel;
-    @FXML private Label welcomeLabel;
-    @FXML private Label statUsers;
-    @FXML private Label statDoctors;
-    @FXML private VBox dashboardPane;
-    @FXML private VBox usersPane;
-    @FXML private VBox doctorsPane;
-    private static User currentUser;
+public class MainController {
 
-    public static void setCurrentUser(User user) {
-        currentUser = user;
-    }
+    @FXML private BorderPane mainPane;
+    @FXML private Label lblUser;
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        if (currentUser != null) {
-            loggedUserLabel.setText(currentUser.getUsername());
-            loggedRoleLabel.setText(currentUser.getRole());
-            userInitialLabel.setText(currentUser.getUsername().substring(0, 1).toUpperCase());
-            topUserBadge.setText("● " + currentUser.getUsername());
-            welcomeLabel.setText("Bienvenue, " + currentUser.getUsername() + "! 👋");
-        }
-        loadStats();
-        showDashboard();
-    }
-    private void loadStats() {
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
+    // Admin/Secretaire nav buttons
+    @FXML private Button btnUtilisateurs;
+    @FXML private Button btnMedecins;
+    @FXML private Button btnSpecialites;
+    @FXML private Button btnPatients;
+    @FXML private Button btnRendezVous;
+    @FXML private Button btnDossiers;
 
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM users");
-            if (rs.next()) statUsers.setText(String.valueOf(rs.getInt(1)));
-
-            rs = stmt.executeQuery("SELECT COUNT(*) FROM doctors");
-            if (rs.next()) statDoctors.setText(String.valueOf(rs.getInt(1)));
-
-        } catch (Exception e) {
-            statUsers.setText("—");
-            statDoctors.setText("—");
-        }
-    }
-    @FXML
-    private void showDashboard() {
-        setActivePage(dashboardPane, btnDashboard, "Tableau de bord");
-        loadStats();
-    }
+    // Medecin nav buttons
+    @FXML private Button btnMesDisponibilites;
+    @FXML private Button btnMesPatientsRdv;
+    @FXML private Button btnMesDossiers;
+    @FXML private Button btnMesRendezVous;
 
     @FXML
-    private void showUsers() {
-        setActivePage(usersPane, btnUsers, "Gestion des Utilisateurs");
-        loadPane(usersPane, "UserManagement.fxml");
+    public void initialize() {
+        var session = SessionManager.getInstance();
+        var user = session.getCurrentUser();
+
+        if (user != null) {
+            lblUser.setText("Connecté : " + user.getNom() + " (" + user.getRole() + ")");
+        }
+
+        // Show/hide buttons based on role
+        boolean isAdmin = session.isAdmin();
+        boolean isSecretaire = session.isSecretaire();
+        boolean isMedecin = session.isMedecin();
+
+        if (btnUtilisateurs != null) btnUtilisateurs.setVisible(isAdmin);
+        if (btnMedecins != null) btnMedecins.setVisible(isAdmin);
+        if (btnSpecialites != null) btnSpecialites.setVisible(isAdmin);
+        if (btnPatients != null) btnPatients.setVisible(isAdmin || isSecretaire);
+        if (btnRendezVous != null) btnRendezVous.setVisible(isAdmin || isSecretaire);
+        if (btnDossiers != null) btnDossiers.setVisible(isAdmin || isSecretaire);
+
+        if (btnMesDisponibilites != null) btnMesDisponibilites.setVisible(isMedecin);
+        if (btnMesPatientsRdv != null) btnMesPatientsRdv.setVisible(isMedecin);
+        if (btnMesDossiers != null) btnMesDossiers.setVisible(isMedecin);
+        if (btnMesRendezVous != null) btnMesRendezVous.setVisible(isMedecin);
+
+        // Load default view
+        if (isAdmin) {
+            loadView("UserManagement.fxml");
+        } else if (isSecretaire) {
+            loadView("PatientManagement.fxml");
+        } else if (isMedecin) {
+            loadView("DisponibiliteManagement.fxml");
+        }
     }
 
+    @FXML private void showUtilisateurs() { loadView("UserManagement.fxml"); }
+    @FXML private void showMedecins() { loadView("DoctorManagement.fxml"); }
+    @FXML private void showSpecialites() { loadView("SpecialiteManagement.fxml"); }
+    @FXML private void showPatients() { loadView("PatientManagement.fxml"); }
+    @FXML private void showRendezVous() { loadView("RendezVousManagement.fxml"); }
+    @FXML private void showDossiers() { loadView("DossierMedicalManagement.fxml"); }
+    @FXML private void showMesDisponibilites() { loadView("DisponibiliteManagement.fxml"); }
+    @FXML private void showMesPatientsRdv() { loadView("RendezVousManagement.fxml"); }
+    @FXML private void showMesDossiers() { loadView("DossierMedicalManagement.fxml"); }
+    @FXML private void showMesRendezVous() { loadView("RendezVousManagement.fxml"); }
+
     @FXML
-    private void showDoctors() {
-        setActivePage(doctorsPane, btnDoctors, "Gestion des Médecins");
-        loadPane(doctorsPane, "DoctorManagement.fxml");
-    }
-    private void setActivePage(VBox targetPane, Button activeBtn, String title) {
-        dashboardPane.setVisible(false);
-        usersPane.setVisible(false);
-        doctorsPane.setVisible(false);
-        targetPane.setVisible(true);
-        btnDashboard.getStyleClass().removeAll("sidebar-btn-active");
-        btnUsers.getStyleClass().removeAll("sidebar-btn-active");
-        btnDoctors.getStyleClass().removeAll("sidebar-btn-active");
-        if (!activeBtn.getStyleClass().contains("sidebar-btn-active")) {
-            activeBtn.getStyleClass().add("sidebar-btn-active");
-        }
-        pageTitle.setText(title);
-    }
-    private void loadPane(VBox container, String fxmlName) {
-        if (!container.getChildren().isEmpty()) return; 
+    private void handleLogout() {
+        SessionManager.getInstance().logout();
         try {
+            Stage stage = (Stage) mainPane.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/example/gestion_medicale/" + fxmlName)
-            );
-            Node content = loader.load();
-            VBox.setVgrow(content, javafx.scene.layout.Priority.ALWAYS);
-            container.getChildren().add(content);
-        } catch (IOException e) {
-            Label err = new Label("Erreur lors du chargement : " + fxmlName);
-            err.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 14px;");
-            container.getChildren().add(err);
+                    getClass().getResource("/com/example/gestion_medicale/login.fxml"));
+            Scene scene = new Scene(loader.load(), 450, 350);
+            scene.getStylesheets().add(
+                    getClass().getResource("/com/example/gestion_medicale/styles.css").toExternalForm());
+            stage.setScene(scene);
+            stage.setTitle("Gestion Médicale - Connexion");
+            stage.setMaximized(false);
+            stage.centerOnScreen();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @FXML
-    private void handleLogout() {
+    private void loadView(String fxmlFile) {
         try {
-            currentUser = null;
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/example/gestion_medicale/login.fxml")
-            );
-            Scene scene = new Scene(loader.load());
-            Stage stage = (Stage) btnDashboard.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Connexion — Gestion Médicale");
-            stage.centerOnScreen();
-        } catch (IOException e) {
+                    getClass().getResource("/com/example/gestion_medicale/" + fxmlFile));
+            Parent view = loader.load();
+            mainPane.setCenter(view);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

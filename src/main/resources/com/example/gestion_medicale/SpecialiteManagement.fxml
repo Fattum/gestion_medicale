@@ -4,21 +4,21 @@
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.example.gestion_medicale.controllers.DoctorController"
+      fx:controller="com.example.gestion_medicale.controllers.SpecialiteController"
       spacing="16" styleClass="view-container">
     <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-    <Label text="👨‍⚕️ Gestion des Médecins" styleClass="view-title"/>
+    <Label text="🏷 Gestion des Spécialités" styleClass="view-title"/>
 
     <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
 
         <!-- TABLE -->
         <VBox spacing="8">
-            <TableView fx:id="tableDoctors" VBox.vgrow="ALWAYS">
+            <TableView fx:id="tableSpecialites" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                     <TableColumn fx:id="colNom" text="Nom" prefWidth="180"/>
-                    <TableColumn fx:id="colSpecialite" text="Spécialité" prefWidth="150"/>
+                    <TableColumn fx:id="colDescription" text="Description" prefWidth="250"/>
                 </columns>
                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
             </TableView>
@@ -28,17 +28,14 @@
         <VBox spacing="12" styleClass="form-panel">
             <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
-            <Label text="Informations Médecin" styleClass="form-section-title"/>
+            <Label text="Détails Spécialité" styleClass="form-section-title"/>
 
             <Label text="Nom *" styleClass="form-label"/>
-            <TextField fx:id="txtNom" promptText="Nom du médecin" styleClass="form-field"/>
+            <TextField fx:id="txtNom" promptText="Nom de la spécialité" styleClass="form-field"/>
 
-            <Label text="Mot de passe *" styleClass="form-label"/>
-            <PasswordField fx:id="txtMotDePasse" promptText="Mot de passe (vide = inchangé)" styleClass="form-field"/>
-
-            <Label text="Spécialité" styleClass="form-label"/>
-            <ComboBox fx:id="cmbSpecialite" promptText="Sélectionner une spécialité"
-                      maxWidth="Infinity" styleClass="form-field"/>
+            <Label text="Description" styleClass="form-label"/>
+            <TextArea fx:id="txtDescription" promptText="Description (optionnel)"
+                      prefRowCount="4" styleClass="form-field" wrapText="true"/>
 
             <Label fx:id="lblMessage" text="" wrapText="true"/>
 

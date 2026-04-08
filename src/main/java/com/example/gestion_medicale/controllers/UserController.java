@@ -1,12 +1,14 @@
 package com.example.gestion_medicale.controllers;
 
 import com.example.gestion_medicale.DatabaseConnection;
+import com.example.gestion_medicale.models.Patient;
 import com.example.gestion_medicale.models.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
 
 import java.sql.*;
 
@@ -19,16 +21,33 @@ public class UserController {
     @FXML private TextField txtNom;
     @FXML private PasswordField txtMotDePasse;
     @FXML private ComboBox<String> cmbRole;
+    @FXML private VBox boxPatientLink;
+    @FXML private ComboBox<Patient> cmbPatientLink;
     @FXML private Label lblMessage;
 
     private ObservableList<User> userList = FXCollections.observableArrayList();
+    private ObservableList<Patient> patientList = FXCollections.observableArrayList();
     private User selectedUser;
     @FXML
     public void initialize() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-        cmbRole.setItems(FXCollections.observableArrayList("ADMIN", "SECRETAIRE", "MEDECIN"));
+        cmbRole.setItems(FXCollections.observableArrayList("ADMIN", "SECRETAIRE", "MEDECIN", "PATIENT"));
+
+        if (cmbPatientLink != null) {
+            cmbPatientLink.setItems(patientList);
+            loadPatients();
+        }
+
+        if (boxPatientLink != null) {
+            boxPatientLink.setManaged(false);
+            boxPatientLink.setVisible(false);
+        }
+
+        if (cmbRole != null) {
+            cmbRole.valueProperty().addListener((obs, old, role) -> togglePatientLink(role));
+        }
 
         tableUsers.setItems(userList);
         tableUsers.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
@@ -37,10 +56,40 @@ public class UserController {
                 txtNom.setText(newVal.getNom());
                 cmbRole.setValue(newVal.getRole());
                 txtMotDePasse.clear();
+                if (cmbPatientLink != null) cmbPatientLink.setValue(null);
             }
         });
 
         loadUsers();
+    }
+
+    private void togglePatientLink(String role) {
+        boolean patient = "PATIENT".equals(role);
+        if (boxPatientLink != null) {
+            boxPatientLink.setManaged(patient);
+            boxPatientLink.setVisible(patient);
+        }
+        if (!patient && cmbPatientLink != null) {
+            cmbPatientLink.setValue(null);
+        }
+    }
+
+    private void loadPatients() {
+        patientList.clear();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT id, nom, telephone, adresse FROM Patient ORDER BY nom")) {
+            while (rs.next()) {
+                patientList.add(new Patient(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("telephone"),
+                        rs.getString("adresse")
+                ));
+            }
+        } catch (SQLException e) {
+            showMessage("Erreur chargement patients: " + e.getMessage(), true);
+        }
     }
 
     private void loadUsers() {
@@ -73,6 +122,15 @@ public class UserController {
             return;
         }
 
+        Patient linkedPatient = null;
+        if ("PATIENT".equals(role)) {
+            linkedPatient = cmbPatientLink != null ? cmbPatientLink.getValue() : null;
+            if (linkedPatient == null) {
+                showMessage("Sélectionnez le patient à lier au compte.", true);
+                return;
+            }
+        }
+
         String sqlUser = "INSERT INTO Utilisateur (nom, motDePasse, role) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
@@ -88,12 +146,19 @@ public class UserController {
                         case "ADMIN" -> "INSERT INTO Admin (id_utilisateur) VALUES (?)";
                         case "SECRETAIRE" -> "INSERT INTO Secretaire (id_utilisateur) VALUES (?)";
                         case "MEDECIN" -> "INSERT INTO Medecin (id_utilisateur) VALUES (?)";
+                        case "PATIENT" -> "INSERT INTO PatientCompte (id_utilisateur, id_patient) VALUES (?, ?)";
                         default -> null;
                     };
                     if (sqlRole != null) {
                         try (PreparedStatement roleStmt = conn.prepareStatement(sqlRole)) {
-                            roleStmt.setInt(1, newId);
-                            roleStmt.executeUpdate();
+                            if ("PATIENT".equals(role)) {
+                                roleStmt.setInt(1, newId);
+                                roleStmt.setInt(2, linkedPatient.getId());
+                                roleStmt.executeUpdate();
+                            } else {
+                                roleStmt.setInt(1, newId);
+                                roleStmt.executeUpdate();
+                            }
                         }
                     }
                 }
@@ -184,6 +249,8 @@ public class UserController {
         txtNom.clear();
         txtMotDePasse.clear();
         cmbRole.setValue(null);
+        if (cmbPatientLink != null) cmbPatientLink.setValue(null);
+        togglePatientLink(null);
         selectedUser = null;
         tableUsers.getSelectionModel().clearSelection();
         lblMessage.setText("");

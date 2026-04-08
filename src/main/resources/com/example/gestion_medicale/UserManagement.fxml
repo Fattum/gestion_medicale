@@ -39,6 +39,12 @@
             <Label text="Rôle *" styleClass="form-label"/>
             <ComboBox fx:id="cmbRole" promptText="Sélectionner le rôle" maxWidth="Infinity" styleClass="form-field"/>
 
+            <VBox fx:id="boxPatientLink" spacing="6">
+                <Label text="Patient à lier *" styleClass="form-label"/>
+                <ComboBox fx:id="cmbPatientLink" promptText="Sélectionner le patient"
+                          maxWidth="Infinity" styleClass="form-field"/>
+            </VBox>
+
             <Label fx:id="lblMessage" text="" wrapText="true"/>
 
             <HBox spacing="8">

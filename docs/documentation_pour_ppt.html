@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Documentation – Gestion Médicale</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #111; }
+    h1,h2,h3 { margin: 0.8em 0 0.4em; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
+    .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; margin: 14px 0; }
+    .muted { color: #555; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .mermaid { background: #fff; }
+    .footer { margin-top: 32px; font-size: 12px; color: #666; }
+  </style>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+</head>
+<body>
+  <h1>Documentation – Projet <code>gestion_medicale</code></h1>
+  <p class="muted">
+    Ouvrir ce fichier dans un navigateur. Pour obtenir un PDF: <b>Ctrl+P → Enregistrer en PDF</b>.
+    Pour récupérer les diagrammes en image: clic droit sur le diagramme (SVG) → enregistrer.
+  </p>
+
+  <div class="card">
+    <h2>Architecture (résumé)</h2>
+    <ul>
+      <li><b>UI</b>: JavaFX + FXML + CSS</li>
+      <li><b>DB</b>: MySQL via JDBC + pool HikariCP</li>
+      <li><b>Rôles</b>: ADMIN / SECRETAIRE / MEDECIN / PATIENT</li>
+      <li><b>Fonctions</b>: Patients, médecins, spécialités, disponibilités, rendez-vous, dossiers médicaux, ordonnances</li>
+    </ul>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Diagramme de classes (UML)</h2>
+      <div class="mermaid">
+classDiagram
+direction LR
+
+class User {
+  +int id
+  +String nom
+  +String motDePasse
+  +String role
+}
+
+class Patient {
+  +int id
+  +String nom
+  +String telephone
+  +String adresse
+}
+
+class Doctor {
+  +int id
+  +String nom
+  +int idSpecialite
+  +String nomSpecialite
+}
+
+class Specialite {
+  +int id
+  +String nom
+  +String description
+}
+
+class Disponibilite {
+  +int id
+  +LocalDate dateDispo
+  +LocalTime heureDebut
+  +LocalTime heureFin
+  +int idMedecin
+}
+
+class RendezVous {
+  +int id
+  +LocalDate dateRdv
+  +LocalTime heureRdv
+  +String statut
+  +int idPatient
+  +int idMedecin
+}
+
+class DossierMedical {
+  +int id
+  +int idPatient
+  +String historique
+  +String allergies
+  +String observations
+}
+
+class Ordonnance {
+  +int id
+  +int idRdv
+  +int idPatient
+  +int idMedecin
+  +String libelle
+  +String contenu
+  +LocalDate dateOrdonnance
+}
+
+class SessionManager {
+  +User currentUser
+  +Integer currentPatientId
+  +isAdmin()
+  +isSecretaire()
+  +isMedecin()
+  +isPatient()
+}
+
+User "1" --> "0..1" Doctor : Medecin(id_utilisateur)
+User "1" --> "0..1" Patient : PatientCompte (role PATIENT)
+Patient "1" --> "1" DossierMedical : 1..1
+Doctor "1" --> "0..*" Disponibilite : 1..*
+Patient "1" --> "0..*" RendezVous : 1..*
+Doctor "1" --> "0..*" RendezVous : 1..*
+RendezVous "1" --> "0..*" Ordonnance : 1..*
+Patient "1" --> "0..*" Ordonnance : 1..*
+Doctor "1" --> "0..*" Ordonnance : 1..*
+Doctor "0..*" --> "1" Specialite : appartient
+SessionManager --> User : session
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Diagramme de cas d’utilisation</h2>
+      <div class="mermaid">
+flowchart LR
+  A[ADMIN] --> U1((Gérer utilisateurs))
+  A --> U2((Gérer médecins))
+  A --> U3((Gérer spécialités))
+  A --> U4((Consulter dossiers))
+
+  S[SECRETAIRE] --> P1((Gérer patients))
+  S --> R1((Créer/planifier RDV))
+  S --> R2((Modifier statut RDV))
+  S --> D1((Consulter dossiers))
+
+  M[MEDECIN] --> DISP((Gérer disponibilités))
+  M --> MRDV((Voir mes RDV))
+  M --> MDOS((Consulter dossiers patients))
+  M --> ORDC((Créer ordonnance depuis RDV))
+  M --> ORDV((Voir mes ordonnances))
+
+  P[PATIENT] --> PDOS((Voir mon dossier))
+  P --> PORD((Voir mes ordonnances))
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Où sont les écrans (FXML) ?</h2>
+    <pre><code>src/main/resources/com/example/gestion_medicale/
+  login.fxml
+  MainView.fxml
+  UserManagement.fxml
+  PatientManagement.fxml
+  DoctorManagement.fxml
+  SpecialiteManagement.fxml
+  DisponibiliteManagement.fxml
+  RendezVousManagement.fxml
+  DossierMedicalManagement.fxml
+  OrdonnanceManagement.fxml
+  styles.css</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>Où le cours “Threads & Collections” est utilisé ?</h2>
+    <ul>
+      <li><b>Threads</b>: <code>AppExecutors</code> (thread pool) + <code>Task</code> JavaFX dans <code>RendezVousController</code> pour chargements DB asynchrones.</li>
+      <li><b>Collections</b>: <code>ObservableList</code> (List UI), <code>HashMap</code> (Map index par id) dans <code>RendezVousController</code>.</li>
+      <li><b>Streams</b>: <code>DatabaseInitializer</code> utilise <code>Collectors.joining</code> et <code>Arrays.stream</code>.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Astuce PowerPoint: tu peux exporter les diagrammes en SVG (meilleure qualité) et les insérer directement dans PPT.
+  </div>
+</body>
+</html>
+

@@ -23,6 +23,8 @@ public class Main extends Application {
     public static void main(String[] args) {
         // Initialize database on startup
         DatabaseInitializer.initialize();
+        Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(AppExecutors::shutdown));
         launch(args);
     }
 }

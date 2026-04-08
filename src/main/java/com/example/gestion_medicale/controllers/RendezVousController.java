@@ -1,6 +1,7 @@
 package com.example.gestion_medicale.controllers;
 
 import com.example.gestion_medicale.DatabaseConnection;
+import com.example.gestion_medicale.AppExecutors;
 import com.example.gestion_medicale.SessionManager;
 import com.example.gestion_medicale.models.Disponibilite;
 import com.example.gestion_medicale.models.Doctor;
@@ -8,6 +9,7 @@ import com.example.gestion_medicale.models.Patient;
 import com.example.gestion_medicale.models.RendezVous;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -16,6 +18,8 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RendezVousController {
 
@@ -39,6 +43,10 @@ public class RendezVousController {
     private ObservableList<Doctor> doctorList = FXCollections.observableArrayList();
     private ObservableList<Disponibilite> dispoList = FXCollections.observableArrayList();
     private RendezVous selectedRdv;
+
+    // Map (HashMap) pour accès O(1) au lieu de parcourir les listes
+    private final Map<Integer, Patient> patientById = new HashMap<>();
+    private final Map<Integer, Doctor> doctorById = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -75,51 +83,73 @@ public class RendezVousController {
                 dpDate.setValue(newVal.getDateRdv());
                 txtHeure.setText(newVal.getHeureRdv().toString());
                 cmbStatut.setValue(newVal.getStatut());
-                patientList.stream().filter(p -> p.getId() == newVal.getIdPatient())
-                        .findFirst().ifPresent(cmbPatient::setValue);
-                doctorList.stream().filter(d -> d.getId() == newVal.getIdMedecin())
-                        .findFirst().ifPresent(cmbMedecin::setValue);
+                Patient p = patientById.get(newVal.getIdPatient());
+                if (p != null) cmbPatient.setValue(p);
+                Doctor d = doctorById.get(newVal.getIdMedecin());
+                if (d != null) cmbMedecin.setValue(d);
             }
         });
 
-        loadPatients();
-        loadDoctors();
-        loadRendezVous();
+        loadPatientsAsync();
+        loadDoctorsAsync();
+        loadRendezVousAsync();
     }
 
-    private void loadPatients() {
-        patientList.clear();
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT id, nom, telephone, adresse FROM Patient ORDER BY nom")) {
-            while (rs.next()) {
-                patientList.add(new Patient(rs.getInt("id"), rs.getString("nom"),
-                        rs.getString("telephone"), rs.getString("adresse")));
+    private void loadPatientsAsync() {
+        Task<ObservableList<Patient>> task = new Task<>() {
+            @Override
+            protected ObservableList<Patient> call() throws Exception {
+                ObservableList<Patient> results = FXCollections.observableArrayList();
+                try (Connection conn = DatabaseConnection.getConnection();
+                     Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery("SELECT id, nom, telephone, adresse FROM Patient ORDER BY nom")) {
+                    while (rs.next()) {
+                        results.add(new Patient(rs.getInt("id"), rs.getString("nom"),
+                                rs.getString("telephone"), rs.getString("adresse")));
+                    }
+                }
+                return results;
             }
-        } catch (SQLException e) {
-            showMessage("Erreur chargement patients: " + e.getMessage(), true);
-        }
+        };
+        task.setOnSucceeded(evt -> {
+            patientList.setAll(task.getValue());
+            patientById.clear();
+            for (Patient p : patientList) patientById.put(p.getId(), p);
+        });
+        task.setOnFailed(evt -> showMessage("Erreur chargement patients: " + task.getException().getMessage(), true));
+        AppExecutors.db().submit(task);
     }
 
-    private void loadDoctors() {
-        doctorList.clear();
-        String sql = """
-                SELECT u.id, u.nom, u.motDePasse, m.id_specialite, s.nom AS nomSpec
-                FROM Utilisateur u
-                JOIN Medecin m ON u.id = m.id_utilisateur
-                LEFT JOIN Specialite s ON m.id_specialite = s.id
-                ORDER BY u.nom
-                """;
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                doctorList.add(new Doctor(rs.getInt("id"), rs.getString("nom"),
-                        rs.getString("motDePasse"), rs.getInt("id_specialite"), rs.getString("nomSpec")));
+    private void loadDoctorsAsync() {
+        Task<ObservableList<Doctor>> task = new Task<>() {
+            @Override
+            protected ObservableList<Doctor> call() throws Exception {
+                ObservableList<Doctor> results = FXCollections.observableArrayList();
+                String sql = """
+                        SELECT u.id, u.nom, u.motDePasse, m.id_specialite, s.nom AS nomSpec
+                        FROM Utilisateur u
+                        JOIN Medecin m ON u.id = m.id_utilisateur
+                        LEFT JOIN Specialite s ON m.id_specialite = s.id
+                        ORDER BY u.nom
+                        """;
+                try (Connection conn = DatabaseConnection.getConnection();
+                     Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    while (rs.next()) {
+                        results.add(new Doctor(rs.getInt("id"), rs.getString("nom"),
+                                rs.getString("motDePasse"), rs.getInt("id_specialite"), rs.getString("nomSpec")));
+                    }
+                }
+                return results;
             }
-        } catch (SQLException e) {
-            showMessage("Erreur chargement médecins: " + e.getMessage(), true);
-        }
+        };
+        task.setOnSucceeded(evt -> {
+            doctorList.setAll(task.getValue());
+            doctorById.clear();
+            for (Doctor d : doctorList) doctorById.put(d.getId(), d);
+        });
+        task.setOnFailed(evt -> showMessage("Erreur chargement médecins: " + task.getException().getMessage(), true));
+        AppExecutors.db().submit(task);
     }
 
     private void loadDisponibilitesByMedecin(int medecinId) {
@@ -151,54 +181,61 @@ public class RendezVousController {
         }
     }
 
-    public void loadRendezVous() {
-        rdvList.clear();
+    public void loadRendezVousAsync() {
         String sql;
         boolean isMedecin = SessionManager.getInstance().isMedecin();
 
-        if (isMedecin) {
-            sql = """
-                    SELECT r.id, r.date_rdv, r.heure_rdv, r.statut,
-                           r.id_patient, p.nom AS patientNom,
-                           r.id_medecin, u.nom AS medecinNom,
-                           r.id_secretaire, r.id_disponibilite
-                    FROM RendezVous r
-                    JOIN Patient p ON r.id_patient = p.id
-                    JOIN Utilisateur u ON r.id_medecin = u.id
-                    WHERE r.id_medecin = ?
-                    ORDER BY r.date_rdv DESC, r.heure_rdv
-                    """;
-            try (Connection conn = DatabaseConnection.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, SessionManager.getInstance().getCurrentUser().getId());
-                fillRdvFromResultSet(stmt.executeQuery());
-            } catch (SQLException e) {
-                showMessage("Erreur: " + e.getMessage(), true);
+        Task<ObservableList<RendezVous>> task = new Task<>() {
+            @Override
+            protected ObservableList<RendezVous> call() throws Exception {
+                ObservableList<RendezVous> results = FXCollections.observableArrayList();
+                if (isMedecin) {
+                    String q = """
+                            SELECT r.id, r.date_rdv, r.heure_rdv, r.statut,
+                                   r.id_patient, p.nom AS patientNom,
+                                   r.id_medecin, u.nom AS medecinNom,
+                                   r.id_secretaire, r.id_disponibilite
+                            FROM RendezVous r
+                            JOIN Patient p ON r.id_patient = p.id
+                            JOIN Utilisateur u ON r.id_medecin = u.id
+                            WHERE r.id_medecin = ?
+                            ORDER BY r.date_rdv DESC, r.heure_rdv
+                            """;
+                    try (Connection conn = DatabaseConnection.getConnection();
+                         PreparedStatement stmt = conn.prepareStatement(q)) {
+                        stmt.setInt(1, SessionManager.getInstance().getCurrentUser().getId());
+                        try (ResultSet rs = stmt.executeQuery()) {
+                            fillRdvFromResultSet(rs, results);
+                        }
+                    }
+                } else {
+                    String q = """
+                            SELECT r.id, r.date_rdv, r.heure_rdv, r.statut,
+                                   r.id_patient, p.nom AS patientNom,
+                                   r.id_medecin, u.nom AS medecinNom,
+                                   r.id_secretaire, r.id_disponibilite
+                            FROM RendezVous r
+                            JOIN Patient p ON r.id_patient = p.id
+                            JOIN Utilisateur u ON r.id_medecin = u.id
+                            ORDER BY r.date_rdv DESC, r.heure_rdv
+                            """;
+                    try (Connection conn = DatabaseConnection.getConnection();
+                         Statement stmt = conn.createStatement();
+                         ResultSet rs = stmt.executeQuery(q)) {
+                        fillRdvFromResultSet(rs, results);
+                    }
+                }
+                return results;
             }
-        } else {
-            sql = """
-                    SELECT r.id, r.date_rdv, r.heure_rdv, r.statut,
-                           r.id_patient, p.nom AS patientNom,
-                           r.id_medecin, u.nom AS medecinNom,
-                           r.id_secretaire, r.id_disponibilite
-                    FROM RendezVous r
-                    JOIN Patient p ON r.id_patient = p.id
-                    JOIN Utilisateur u ON r.id_medecin = u.id
-                    ORDER BY r.date_rdv DESC, r.heure_rdv
-                    """;
-            try (Connection conn = DatabaseConnection.getConnection();
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(sql)) {
-                fillRdvFromResultSet(rs);
-            } catch (SQLException e) {
-                showMessage("Erreur: " + e.getMessage(), true);
-            }
-        }
+        };
+        task.setOnSucceeded(evt -> rdvList.setAll(task.getValue()));
+        task.setOnFailed(evt -> showMessage("Erreur: " + task.getException().getMessage(), true));
+        AppExecutors.db().submit(task);
     }
 
-    private void fillRdvFromResultSet(ResultSet rs) throws SQLException {
+    private void fillRdvFromResultSet(ResultSet rs, ObservableList<RendezVous> target) throws SQLException {
         while (rs.next()) {
-            rdvList.add(new RendezVous(
+            target.add(new RendezVous(
                     rs.getInt("id"),
                     rs.getDate("date_rdv").toLocalDate(),
                     rs.getTime("heure_rdv").toLocalTime(),
@@ -250,7 +287,7 @@ public class RendezVousController {
             stmt.executeUpdate();
             showMessage("Rendez-vous ajouté.", false);
             handleEffacer();
-            loadRendezVous();
+            loadRendezVousAsync();
         } catch (SQLException e) {
             showMessage("Erreur: " + e.getMessage(), true);
         }
@@ -275,7 +312,7 @@ public class RendezVousController {
             stmt.executeUpdate();
             showMessage("Statut mis à jour.", false);
             handleEffacer();
-            loadRendezVous();
+            loadRendezVousAsync();
         } catch (SQLException e) {
             showMessage("Erreur: " + e.getMessage(), true);
         }
@@ -298,7 +335,7 @@ public class RendezVousController {
                     stmt.executeUpdate();
                     showMessage("Rendez-vous supprimé.", false);
                     handleEffacer();
-                    loadRendezVous();
+                    loadRendezVousAsync();
                 } catch (SQLException e) {
                     showMessage("Erreur: " + e.getMessage(), true);
                 }

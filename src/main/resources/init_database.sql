@@ -1,7 +1,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Nettoyage de la base (includes legacy table names)
-DROP TABLE IF EXISTS Ordonnance, PatientCompte, RendezVous, Disponibilite, DossierMedical, Patient, doctors, Medecin, Secretaire, Admin, Specialite, Utilisateur;
+DROP TABLE IF EXISTS Ordonnance, SecretaireMedecin, PatientCompte, RendezVous, Disponibilite, DossierMedical, Patient, doctors, Medecin, Secretaire, Admin, Specialite, Utilisateur;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -36,6 +36,15 @@ CREATE TABLE Medecin (
     id_specialite INT,
     FOREIGN KEY (id_utilisateur) REFERENCES Utilisateur(id) ON DELETE CASCADE,
     FOREIGN KEY (id_specialite) REFERENCES Specialite(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 3b. Liaison Secretaire <-> Medecin (accès limité)
+CREATE TABLE SecretaireMedecin (
+    id_secretaire INT NOT NULL,
+    id_medecin INT NOT NULL,
+    PRIMARY KEY (id_secretaire, id_medecin),
+    FOREIGN KEY (id_secretaire) REFERENCES Secretaire(id_utilisateur) ON DELETE CASCADE,
+    FOREIGN KEY (id_medecin) REFERENCES Medecin(id_utilisateur) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- 4. Table Disponibilite

@@ -33,9 +33,6 @@
             <Label text="Nom *" styleClass="form-label"/>
             <TextField fx:id="txtNom" promptText="Nom du médecin" styleClass="form-field"/>
 
-            <Label text="Mot de passe *" styleClass="form-label"/>
-            <PasswordField fx:id="txtMotDePasse" promptText="Mot de passe (vide = inchangé)" styleClass="form-field"/>
-
             <Label text="Spécialité" styleClass="form-label"/>
             <ComboBox fx:id="cmbSpecialite" promptText="Sélectionner une spécialité"
                       maxWidth="Infinity" styleClass="form-field"/>

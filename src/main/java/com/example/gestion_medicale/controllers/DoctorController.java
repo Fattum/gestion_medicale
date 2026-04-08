@@ -18,7 +18,6 @@ public class DoctorController {
     @FXML private TableColumn<Doctor, String> colNom;
     @FXML private TableColumn<Doctor, String> colSpecialite;
     @FXML private TextField txtNom;
-    @FXML private PasswordField txtMotDePasse;
     @FXML private ComboBox<Specialite> cmbSpecialite;
     @FXML private Label lblMessage;
 
@@ -39,7 +38,6 @@ public class DoctorController {
             if (newVal != null) {
                 selectedDoctor = newVal;
                 txtNom.setText(newVal.getNom());
-                txtMotDePasse.clear();
                 // Select specialite in combo
                 specialiteList.stream()
                         .filter(s -> s.getId() == newVal.getIdSpecialite())
@@ -99,11 +97,10 @@ public class DoctorController {
     @FXML
     private void handleAjouter() {
         String nom = txtNom.getText().trim();
-        String mdp = txtMotDePasse.getText().trim();
         Specialite spec = cmbSpecialite.getValue();
 
-        if (nom.isEmpty() || mdp.isEmpty()) {
-            showMessage("Nom et mot de passe sont obligatoires.", true);
+        if (nom.isEmpty()) {
+            showMessage("Nom est obligatoire.", true);
             return;
         }
 
@@ -112,7 +109,7 @@ public class DoctorController {
             conn.setAutoCommit(false);
             try (PreparedStatement stmt = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, nom);
-                stmt.setString(2, mdp);
+                stmt.setString(2, "med123");
                 stmt.executeUpdate();
                 ResultSet keys = stmt.getGeneratedKeys();
                 if (keys.next()) {
@@ -157,22 +154,11 @@ public class DoctorController {
 
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            String mdp = txtMotDePasse.getText().trim();
-            if (!mdp.isEmpty()) {
-                try (PreparedStatement stmt = conn.prepareStatement(
-                        "UPDATE Utilisateur SET nom=?, motDePasse=? WHERE id=?")) {
-                    stmt.setString(1, nom);
-                    stmt.setString(2, mdp);
-                    stmt.setInt(3, selectedDoctor.getId());
-                    stmt.executeUpdate();
-                }
-            } else {
-                try (PreparedStatement stmt = conn.prepareStatement(
-                        "UPDATE Utilisateur SET nom=? WHERE id=?")) {
-                    stmt.setString(1, nom);
-                    stmt.setInt(2, selectedDoctor.getId());
-                    stmt.executeUpdate();
-                }
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "UPDATE Utilisateur SET nom=? WHERE id=?")) {
+                stmt.setString(1, nom);
+                stmt.setInt(2, selectedDoctor.getId());
+                stmt.executeUpdate();
             }
             try (PreparedStatement stmt = conn.prepareStatement(
                     "UPDATE Medecin SET id_specialite=? WHERE id_utilisateur=?")) {
@@ -222,7 +208,6 @@ public class DoctorController {
     @FXML
     private void handleEffacer() {
         txtNom.clear();
-        txtMotDePasse.clear();
         cmbSpecialite.setValue(null);
         selectedDoctor = null;
         tableDoctors.getSelectionModel().clearSelection();

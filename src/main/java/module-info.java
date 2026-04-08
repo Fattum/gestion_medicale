@@ -5,6 +5,7 @@ module com.example.gestion_medicale {
     requires com.zaxxer.hikari;
     requires org.slf4j;
     requires org.slf4j.simple;
+    requires org.controlsfx.controls;
 
     opens com.example.gestion_medicale to javafx.fxml;
     opens com.example.gestion_medicale.controllers to javafx.fxml;

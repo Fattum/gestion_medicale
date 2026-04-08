@@ -125,19 +125,42 @@ public class RendezVousController {
             @Override
             protected ObservableList<Doctor> call() throws Exception {
                 ObservableList<Doctor> results = FXCollections.observableArrayList();
-                String sql = """
+                boolean isSecretaire = SessionManager.getInstance().isSecretaire();
+                int currentUserId = SessionManager.getInstance().getCurrentUser() != null
+                        ? SessionManager.getInstance().getCurrentUser().getId() : -1;
+
+                String baseSql = """
                         SELECT u.id, u.nom, u.motDePasse, m.id_specialite, s.nom AS nomSpec
                         FROM Utilisateur u
                         JOIN Medecin m ON u.id = m.id_utilisateur
                         LEFT JOIN Specialite s ON m.id_specialite = s.id
-                        ORDER BY u.nom
                         """;
-                try (Connection conn = DatabaseConnection.getConnection();
-                     Statement stmt = conn.createStatement();
-                     ResultSet rs = stmt.executeQuery(sql)) {
-                    while (rs.next()) {
-                        results.add(new Doctor(rs.getInt("id"), rs.getString("nom"),
-                                rs.getString("motDePasse"), rs.getInt("id_specialite"), rs.getString("nomSpec")));
+
+                if (isSecretaire) {
+                    String sql = baseSql + """
+                            JOIN SecretaireMedecin sm ON sm.id_medecin = u.id
+                            WHERE sm.id_secretaire = ?
+                            ORDER BY u.nom
+                            """;
+                    try (Connection conn = DatabaseConnection.getConnection();
+                         PreparedStatement stmt = conn.prepareStatement(sql)) {
+                        stmt.setInt(1, currentUserId);
+                        try (ResultSet rs = stmt.executeQuery()) {
+                            while (rs.next()) {
+                                results.add(new Doctor(rs.getInt("id"), rs.getString("nom"),
+                                        rs.getString("motDePasse"), rs.getInt("id_specialite"), rs.getString("nomSpec")));
+                            }
+                        }
+                    }
+                } else {
+                    String sql = baseSql + " ORDER BY u.nom";
+                    try (Connection conn = DatabaseConnection.getConnection();
+                         Statement stmt = conn.createStatement();
+                         ResultSet rs = stmt.executeQuery(sql)) {
+                        while (rs.next()) {
+                            results.add(new Doctor(rs.getInt("id"), rs.getString("nom"),
+                                    rs.getString("motDePasse"), rs.getInt("id_specialite"), rs.getString("nomSpec")));
+                        }
                     }
                 }
                 return results;
@@ -184,6 +207,7 @@ public class RendezVousController {
     public void loadRendezVousAsync() {
         String sql;
         boolean isMedecin = SessionManager.getInstance().isMedecin();
+        boolean isSecretaire = SessionManager.getInstance().isSecretaire();
 
         Task<ObservableList<RendezVous>> task = new Task<>() {
             @Override
@@ -199,6 +223,26 @@ public class RendezVousController {
                             JOIN Patient p ON r.id_patient = p.id
                             JOIN Utilisateur u ON r.id_medecin = u.id
                             WHERE r.id_medecin = ?
+                            ORDER BY r.date_rdv DESC, r.heure_rdv
+                            """;
+                    try (Connection conn = DatabaseConnection.getConnection();
+                         PreparedStatement stmt = conn.prepareStatement(q)) {
+                        stmt.setInt(1, SessionManager.getInstance().getCurrentUser().getId());
+                        try (ResultSet rs = stmt.executeQuery()) {
+                            fillRdvFromResultSet(rs, results);
+                        }
+                    }
+                } else if (isSecretaire) {
+                    String q = """
+                            SELECT r.id, r.date_rdv, r.heure_rdv, r.statut,
+                                   r.id_patient, p.nom AS patientNom,
+                                   r.id_medecin, u.nom AS medecinNom,
+                                   r.id_secretaire, r.id_disponibilite
+                            FROM RendezVous r
+                            JOIN Patient p ON r.id_patient = p.id
+                            JOIN Utilisateur u ON r.id_medecin = u.id
+                            JOIN SecretaireMedecin sm ON sm.id_medecin = r.id_medecin
+                            WHERE sm.id_secretaire = ?
                             ORDER BY r.date_rdv DESC, r.heure_rdv
                             """;
                     try (Connection conn = DatabaseConnection.getConnection();

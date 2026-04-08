@@ -2,6 +2,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import org.controlsfx.control.CheckComboBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.example.gestion_medicale.controllers.UserController"
@@ -43,6 +44,19 @@
                 <Label text="Patient à lier *" styleClass="form-label"/>
                 <ComboBox fx:id="cmbPatientLink" promptText="Sélectionner le patient"
                           maxWidth="Infinity" styleClass="form-field"/>
+            </VBox>
+
+            <VBox fx:id="boxSecretaireDoctors" spacing="6">
+                <Label text="Médecins liés (sélection multiple) *" styleClass="form-label"/>
+                <CheckComboBox fx:id="cmbDoctorsLink" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox fx:id="boxDoctorInfo" spacing="6">
+                <Label text="Médecin" styleClass="form-label"/>
+                <ComboBox fx:id="cmbMedecinLink" promptText="Sélectionner le médecin"
+                          maxWidth="Infinity" styleClass="form-field"/>
+                <Label text="Ce compte sera lié au médecin sélectionné (pas de création d’un nouveau médecin ici)."
+                       wrapText="true" styleClass="info-label"/>
             </VBox>
 
             <Label fx:id="lblMessage" text="" wrapText="true"/>

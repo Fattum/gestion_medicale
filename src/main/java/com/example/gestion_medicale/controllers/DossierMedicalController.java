@@ -35,6 +35,7 @@ public class DossierMedicalController {
     private DossierMedical selectedDossier;
     private boolean isMedecin;
     private boolean isPatient;
+    private boolean isSecretaire;
 
     @FXML
     public void initialize() {
@@ -43,6 +44,7 @@ public class DossierMedicalController {
 
         isMedecin = SessionManager.getInstance().isMedecin();
         isPatient = SessionManager.getInstance().isPatient();
+        isSecretaire = SessionManager.getInstance().isSecretaire();
 
         if (tableOrdonnances != null) {
             colOrdDate.setCellValueFactory(new PropertyValueFactory<>("dateOrdonnance"));
@@ -87,6 +89,8 @@ public class DossierMedicalController {
             loadDossierForCurrentPatient();
         } else if (isMedecin) {
             loadDossiersByMedecin();
+        } else if (isSecretaire) {
+            loadDossiersBySecretaire();
         } else {
             loadAllDossiers();
         }
@@ -142,6 +146,33 @@ public class DossierMedicalController {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, medecinId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                dossierList.add(new DossierMedical(
+                        rs.getInt("id"), rs.getInt("id_patient"), rs.getString("patientNom"),
+                        rs.getString("historique"), rs.getString("allergies"), rs.getString("observations")
+                ));
+            }
+        } catch (SQLException e) {
+            showMessage("Erreur: " + e.getMessage(), true);
+        }
+    }
+
+    public void loadDossiersBySecretaire() {
+        dossierList.clear();
+        int secretaireId = SessionManager.getInstance().getCurrentUser().getId();
+        String sql = """
+                SELECT DISTINCT d.id, d.id_patient, p.nom AS patientNom, d.historique, d.allergies, d.observations
+                FROM DossierMedical d
+                JOIN Patient p ON d.id_patient = p.id
+                JOIN RendezVous r ON r.id_patient = p.id
+                JOIN SecretaireMedecin sm ON sm.id_medecin = r.id_medecin
+                WHERE sm.id_secretaire = ?
+                ORDER BY p.nom
+                """;
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, secretaireId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 dossierList.add(new DossierMedical(

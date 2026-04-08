@@ -24,7 +24,8 @@
 <body>
   <h1>Documentation – Projet <code>gestion_medicale</code></h1>
   <p class="muted">
-    Ouvrir ce fichier dans un navigateur. Pour obtenir un PDF: <b>Ctrl+P → Enregistrer en PDF</b>.
+    Ouvrir ce fichier dans un navigateur. Pour obtenir un PDF:
+    <b>Ctrl+P → Enregistrer en PDF</b>.
     Pour récupérer les diagrammes en image: clic droit sur le diagramme (SVG) → enregistrer.
   </p>
 
@@ -34,6 +35,7 @@
       <li><b>UI</b>: JavaFX + FXML + CSS</li>
       <li><b>DB</b>: MySQL via JDBC + pool HikariCP</li>
       <li><b>Rôles</b>: ADMIN / SECRETAIRE / MEDECIN / PATIENT</li>
+      <li><b>Accès secrétaire</b>: secrétaire lié à un ou plusieurs médecins (table <code>SecretaireMedecin</code>)</li>
       <li><b>Fonctions</b>: Patients, médecins, spécialités, disponibilités, rendez-vous, dossiers médicaux, ordonnances</li>
     </ul>
   </div>
@@ -45,79 +47,20 @@
 classDiagram
 direction LR
 
-class User {
-  +int id
-  +String nom
-  +String motDePasse
-  +String role
-}
-
-class Patient {
-  +int id
-  +String nom
-  +String telephone
-  +String adresse
-}
-
-class Doctor {
-  +int id
-  +String nom
-  +int idSpecialite
-  +String nomSpecialite
-}
-
-class Specialite {
-  +int id
-  +String nom
-  +String description
-}
-
-class Disponibilite {
-  +int id
-  +LocalDate dateDispo
-  +LocalTime heureDebut
-  +LocalTime heureFin
-  +int idMedecin
-}
-
-class RendezVous {
-  +int id
-  +LocalDate dateRdv
-  +LocalTime heureRdv
-  +String statut
-  +int idPatient
-  +int idMedecin
-}
-
-class DossierMedical {
-  +int id
-  +int idPatient
-  +String historique
-  +String allergies
-  +String observations
-}
-
-class Ordonnance {
-  +int id
-  +int idRdv
-  +int idPatient
-  +int idMedecin
-  +String libelle
-  +String contenu
-  +LocalDate dateOrdonnance
-}
-
-class SessionManager {
-  +User currentUser
-  +Integer currentPatientId
-  +isAdmin()
-  +isSecretaire()
-  +isMedecin()
-  +isPatient()
-}
+class User { +int id +String nom +String motDePasse +String role }
+class Patient { +int id +String nom +String telephone +String adresse }
+class Doctor { +int id +String nom +int idSpecialite +String nomSpecialite }
+class Specialite { +int id +String nom +String description }
+class Disponibilite { +int id +LocalDate dateDispo +LocalTime heureDebut +LocalTime heureFin +int idMedecin }
+class RendezVous { +int id +LocalDate dateRdv +LocalTime heureRdv +String statut +int idPatient +int idMedecin +Integer idSecretaire }
+class DossierMedical { +int id +int idPatient +String historique +String allergies +String observations }
+class Ordonnance { +int id +int idRdv +int idPatient +int idMedecin +String libelle +String contenu +LocalDate dateOrdonnance }
+class SessionManager { +User currentUser +Integer currentPatientId +isAdmin() +isSecretaire() +isMedecin() +isPatient() }
 
 User "1" --> "0..1" Doctor : Medecin(id_utilisateur)
 User "1" --> "0..1" Patient : PatientCompte (role PATIENT)
+User "0..*" --> "0..*" Doctor : SecretaireMedecin
+
 Patient "1" --> "1" DossierMedical : 1..1
 Doctor "1" --> "0..*" Disponibilite : 1..*
 Patient "1" --> "0..*" RendezVous : 1..*
@@ -137,12 +80,12 @@ flowchart LR
   A[ADMIN] --> U1((Gérer utilisateurs))
   A --> U2((Gérer médecins))
   A --> U3((Gérer spécialités))
-  A --> U4((Consulter dossiers))
 
-  S[SECRETAIRE] --> P1((Gérer patients))
-  S --> R1((Créer/planifier RDV))
+  S[SECRETAIRE] --> SDOC((Voir médecins liés))
+  S --> P1((Gérer patients))
+  S --> R1((Créer/planifier RDV (médecins liés)))
   S --> R2((Modifier statut RDV))
-  S --> D1((Consulter dossiers))
+  S --> D1((Consulter dossiers (médecins liés)))
 
   M[MEDECIN] --> DISP((Gérer disponibilités))
   M --> MRDV((Voir mes RDV))
@@ -157,33 +100,100 @@ flowchart LR
   </div>
 
   <div class="card">
-    <h2>Où sont les écrans (FXML) ?</h2>
-    <pre><code>src/main/resources/com/example/gestion_medicale/
-  login.fxml
-  MainView.fxml
-  UserManagement.fxml
-  PatientManagement.fxml
-  DoctorManagement.fxml
-  SpecialiteManagement.fxml
-  DisponibiliteManagement.fxml
-  RendezVousManagement.fxml
-  DossierMedicalManagement.fxml
-  OrdonnanceManagement.fxml
-  styles.css</code></pre>
+    <h2>Rôle des dossiers et fichiers (résumé)</h2>
+    <pre><code>src/main/java/com/example/gestion_medicale/
+  Main.java                : point d’entrée JavaFX + init DB + hooks de fermeture
+  DatabaseConnection.java   : HikariCP + getConnection()
+  DatabaseInitializer.java  : exécute init_database.sql (Collectors/Streams)
+  SessionManager.java       : session utilisateur + currentPatientId
+  AppExecutors.java         : ExecutorService (threads) pour tâches DB
+
+src/main/java/com/example/gestion_medicale/controllers/
+  LoginController.java           : login + récupération PatientCompte si rôle PATIENT
+  MainController.java            : navigation + boutons selon rôle
+  UserController.java            : CRUD utilisateurs + liaison PATIENT + liaison SECRETAIRE↔MEDECIN (multi-select)
+  DoctorController.java          : gestion médecins (sans champ mot de passe dans l’écran)
+  PatientController.java         : gestion patients + création auto dossier médical
+  RendezVousController.java      : gestion RDV + filtrage secrétaire + Task/ExecutorService + HashMap
+  DossierMedicalController.java  : dossiers + filtrage secrétaire/médecin/patient + liste ordonnances
+  OrdonnanceController.java      : médecin crée ordonnance; patient consulte
+
+src/main/java/com/example/gestion_medicale/models/
+  POJOs: User, Patient, Doctor, Specialite, Disponibilite, RendezVous, DossierMedical, Ordonnance
+
+src/main/resources/com/example/gestion_medicale/
+  login.fxml, MainView.fxml, *Management.fxml, styles.css
+
+src/main/resources/
+  database.properties, init_database.sql</code></pre>
   </div>
 
   <div class="card">
-    <h2>Où le cours “Threads & Collections” est utilisé ?</h2>
+    <h2>Titres du cours → où c’est utilisé (dans ce projet)</h2>
     <ul>
-      <li><b>Threads</b>: <code>AppExecutors</code> (thread pool) + <code>Task</code> JavaFX dans <code>RendezVousController</code> pour chargements DB asynchrones.</li>
-      <li><b>Collections</b>: <code>ObservableList</code> (List UI), <code>HashMap</code> (Map index par id) dans <code>RendezVousController</code>.</li>
-      <li><b>Streams</b>: <code>DatabaseInitializer</code> utilise <code>Collectors.joining</code> et <code>Arrays.stream</code>.</li>
+      <li><b>Collections (List/Map)</b>:
+        <ul>
+          <li>
+            <b>ObservableList (List)</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/controllers/*Controller.java</code> (ex: <code>RendezVousController</code>, <code>DoctorController</code>, <code>PatientController</code>, <code>DossierMedicalController</code>, <code>OrdonnanceController</code>, <code>UserController</code>).
+            <i>Pourquoi</i>: stocker des lignes pour <code>TableView</code>/<code>ComboBox</code> (données dynamiques UI).
+          </li>
+          <li>
+            <b>HashMap (Map)</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/controllers/RendezVousController.java</code>.
+            <i>Pourquoi</i>: indexer <code>id → Patient</code> et <code>id → Doctor</code> pour remplir rapidement les combos lors de la sélection d’un RDV (accès O(1)).
+          </li>
+        </ul>
+      </li>
+      <li><b>Streams / Collectors</b>:
+        <ul>
+          <li>
+            <b>Collectors.joining + Arrays.stream</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/DatabaseInitializer.java</code>.
+            <i>Pourquoi</i>: lire <code>init_database.sql</code> et préparer/concaténer les lignes SQL en String, puis supprimer les commentaires avant exécution.
+          </li>
+          <li>
+            <b>stream().filter().findFirst()</b> — <i>où</i>: ex. <code>src/main/java/com/example/gestion_medicale/controllers/DoctorController.java</code> et <code>.../DossierMedicalController.java</code>.
+            <i>Pourquoi</i>: retrouver un objet dans une liste (sélectionner une spécialité/Patient correspondant).
+          </li>
+        </ul>
+      </li>
+      <li><b>Threads (Multithreading)</b>:
+        <ul>
+          <li>
+            <b>ExecutorService (Thread Pool)</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/AppExecutors.java</code>.
+            <i>Pourquoi</i>: exécuter des tâches DB en arrière-plan sans bloquer l’UI.
+          </li>
+          <li>
+            <b>JavaFX Task</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/controllers/RendezVousController.java</code>.
+            <i>Pourquoi</i>: charger Patients/Médecins/RDV en asynchrone (meilleure UX: interface fluide).
+          </li>
+          <li>
+            <b>synchronized</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/SessionManager.java</code> (<code>getInstance()</code>).
+            <i>Pourquoi</i>: protéger l’accès au singleton si plusieurs threads l’utilisent.
+          </li>
+        </ul>
+      </li>
+      <li><b>JDBC</b>:
+        <ul>
+          <li>
+            <b>PreparedStatement / ResultSet / try-with-resources</b> — <i>où</i>: contrôleurs CRUD, ex:
+            <code>src/main/java/com/example/gestion_medicale/controllers/UserController.java</code>,
+            <code>.../RendezVousController.java</code>,
+            <code>.../DoctorController.java</code>,
+            <code>.../PatientController.java</code>,
+            <code>.../DossierMedicalController.java</code>,
+            <code>.../OrdonnanceController.java</code>.
+            <i>Pourquoi</i>: exécuter des requêtes SQL paramétrées (sécurité) et fermer automatiquement les ressources.
+          </li>
+          <li>
+            <b>Pool de connexions (HikariCP)</b> — <i>où</i>: <code>src/main/java/com/example/gestion_medicale/DatabaseConnection.java</code> + config <code>src/main/resources/database.properties</code>.
+            <i>Pourquoi</i>: performances (réutilisation connexions) et configuration externalisée.
+          </li>
+        </ul>
+      </li>
     </ul>
   </div>
 
   <div class="footer">
-    Astuce PowerPoint: tu peux exporter les diagrammes en SVG (meilleure qualité) et les insérer directement dans PPT.
+    Astuce PowerPoint: exporter les diagrammes en SVG (meilleure qualité) et les insérer directement dans PPT.
   </div>
 </body>
 </html>
-

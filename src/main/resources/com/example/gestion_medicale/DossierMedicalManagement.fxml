@@ -10,7 +10,7 @@
 
     <Label text="📋 Dossiers Médicaux" styleClass="view-title"/>
 
-    <SplitPane dividerPositions="0.4" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.35" VBox.vgrow="ALWAYS">
 
         <!-- TABLE -->
         <VBox spacing="8">
@@ -24,28 +24,32 @@
         </VBox>
 
         <!-- FORM -->
-        <VBox spacing="12" styleClass="form-panel">
+        <ScrollPane fitToWidth="true">
+        <VBox spacing="14" styleClass="form-panel">
             <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
             <Label text="Contenu du Dossier Médical" styleClass="form-section-title"/>
 
+            <Label text="Conseil: écrivez des informations structurées (date, symptôme, traitement, résultat)."
+                   styleClass="info-label" wrapText="true"/>
+
             <Label text="Historique médical" styleClass="form-label"/>
             <TextArea fx:id="txtHistorique" promptText="Historique des maladies, traitements..."
-                      prefRowCount="4" styleClass="form-field" wrapText="true"
+                      prefRowCount="8" styleClass="form-field" wrapText="true"
                       VBox.vgrow="ALWAYS"/>
 
             <Label text="Allergies" styleClass="form-label"/>
             <TextArea fx:id="txtAllergies" promptText="Médicaments, aliments allergènes..."
-                      prefRowCount="3" styleClass="form-field" wrapText="true"/>
+                      prefRowCount="5" styleClass="form-field" wrapText="true"/>
 
             <Label text="Observations" styleClass="form-label"/>
             <TextArea fx:id="txtObservations" promptText="Observations médicales récentes..."
-                      prefRowCount="4" styleClass="form-field" wrapText="true"
+                      prefRowCount="8" styleClass="form-field" wrapText="true"
                       VBox.vgrow="ALWAYS"/>
 
             <Separator/>
             <Label text="Ordonnances du patient" styleClass="form-section-title"/>
-            <TableView fx:id="tableOrdonnances" prefHeight="180">
+            <TableView fx:id="tableOrdonnances" prefHeight="240">
                 <columns>
                     <TableColumn fx:id="colOrdDate" text="Date" prefWidth="100"/>
                     <TableColumn fx:id="colOrdLibelle" text="Libellé" prefWidth="260"/>
@@ -62,5 +66,6 @@
                         styleClass="btn-outline" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             </HBox>
         </VBox>
+        </ScrollPane>
     </SplitPane>
 </VBox>

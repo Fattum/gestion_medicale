@@ -61,4 +61,9 @@ public class RendezVous {
 
     public Integer getIdDisponibilite() { return idDisponibilite; }
     public void setIdDisponibilite(Integer idDisponibilite) { this.idDisponibilite = idDisponibilite; }
+
+    @Override
+    public String toString() {
+        return "#" + id + " - " + dateRdv + " " + (heureRdv != null ? heureRdv : "") + " - " + (patientNom != null ? patientNom : "");
+    }
 }

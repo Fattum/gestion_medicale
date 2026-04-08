@@ -46,7 +46,23 @@ public class LoginController {
                         rs.getString("motDePasse"),
                         rs.getString("role")
                 );
-                SessionManager.getInstance().setCurrentUser(user);
+                var session = SessionManager.getInstance();
+                session.setCurrentUser(user);
+                session.setCurrentPatientId(null);
+
+                if ("PATIENT".equals(user.getRole())) {
+                    try (PreparedStatement pStmt = conn.prepareStatement(
+                            "SELECT id_patient FROM PatientCompte WHERE id_utilisateur = ?")) {
+                        pStmt.setInt(1, user.getId());
+                        ResultSet prs = pStmt.executeQuery();
+                        if (prs.next()) {
+                            session.setCurrentPatientId(prs.getInt("id_patient"));
+                        } else {
+                            lblErreur.setText("Compte patient non lié à un patient.");
+                            return;
+                        }
+                    }
+                }
 
                 Stage stage = (Stage) txtNom.getScene().getWindow();
                 FXMLLoader loader = new FXMLLoader(

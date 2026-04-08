@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.gestion_medicale.controllers.OrdonnanceController"
+      spacing="16" styleClass="view-container">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="📝 Ordonnances" styleClass="view-title"/>
+
+    <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+
+        <!-- TABLE -->
+        <VBox spacing="8">
+            <TableView fx:id="tableOrdonnances" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colDateOrd" text="Date" prefWidth="110"/>
+                    <TableColumn fx:id="colLibelle" text="Libellé" prefWidth="220"/>
+                    <TableColumn fx:id="colPatient" text="Patient" prefWidth="170"/>
+                    <TableColumn fx:id="colMedecin" text="Médecin" prefWidth="170"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+        </VBox>
+
+        <!-- FORM / DETAILS -->
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="10" styleClass="form-panel">
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+                <Label fx:id="lblSectionTitle" text="Créer une ordonnance" styleClass="form-section-title"/>
+
+                <VBox fx:id="boxCreate" spacing="10">
+                    <Label text="Rendez-vous *" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbRdv" promptText="Sélectionner un rendez-vous"
+                              maxWidth="Infinity" styleClass="form-field"/>
+
+                    <Label text="Date ordonnance *" styleClass="form-label"/>
+                    <DatePicker fx:id="dpDateOrdonnance" maxWidth="Infinity" styleClass="form-field"/>
+
+                    <Label text="Libellé *" styleClass="form-label"/>
+                    <TextField fx:id="txtLibelle" promptText="ex: Ordonnance consultation" styleClass="form-field"/>
+
+                    <Label text="Contenu" styleClass="form-label"/>
+                    <TextArea fx:id="txtContenu" promptText="Détails: médicaments, posologie, examens..."
+                              prefRowCount="6" wrapText="true" styleClass="form-field"/>
+
+                    <Button fx:id="btnAjouter" text="💾 Enregistrer l'ordonnance" onAction="#handleAjouter"
+                            styleClass="btn-primary" maxWidth="Infinity"/>
+                </VBox>
+
+                <Separator/>
+
+                <Label text="Détails" styleClass="form-section-title"/>
+
+                <Label text="Libellé" styleClass="form-label"/>
+                <Label fx:id="lblLibelle" text="" wrapText="true"/>
+
+                <Label text="Contenu" styleClass="form-label"/>
+                <TextArea fx:id="txtContenuView" editable="false" wrapText="true"
+                          prefRowCount="8" styleClass="form-field"/>
+
+                <Label fx:id="lblMessage" text="" wrapText="true"/>
+            </VBox>
+        </ScrollPane>
+    </SplitPane>
+</VBox>
+

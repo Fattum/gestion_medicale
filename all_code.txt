@@ -1,0 +1,11 @@
+﻿Au caractère Ligne:1 : 84
++ ...  -Filter '*.java' 'src\main\java' | ForEach-Object { '=== ' + .Name + ...
++                                                                  ~
+Vous devez indiquer une expression de valeur après l'opérateur « + ».
+Au caractère Ligne:1 : 85
++ ... er '*.java' 'src\main\java' | ForEach-Object { '=== ' + .Name + ' === ...
++                                                             ~~~~~
+Jeton inattendu « .Name » dans l'expression ou l'instruction.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ExpectedValueExpression
+ 

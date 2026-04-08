@@ -43,6 +43,16 @@
                       prefRowCount="4" styleClass="form-field" wrapText="true"
                       VBox.vgrow="ALWAYS"/>
 
+            <Separator/>
+            <Label text="Ordonnances du patient" styleClass="form-section-title"/>
+            <TableView fx:id="tableOrdonnances" prefHeight="180">
+                <columns>
+                    <TableColumn fx:id="colOrdDate" text="Date" prefWidth="100"/>
+                    <TableColumn fx:id="colOrdLibelle" text="Libellé" prefWidth="260"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+
             <Label fx:id="lblMessage" text="" wrapText="true"/>
 
             <HBox spacing="8">

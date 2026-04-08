@@ -48,6 +48,15 @@
                     onAction="#showMesRendezVous" styleClass="nav-btn" maxWidth="Infinity"/>
             <Button fx:id="btnMesDossiers" text="📋 Dossiers Patients"
                     onAction="#showMesDossiers" styleClass="nav-btn" maxWidth="Infinity"/>
+            <Button fx:id="btnMesOrdonnances" text="📝 Ordonnances"
+                    onAction="#showMesOrdonnances" styleClass="nav-btn" maxWidth="Infinity"/>
+
+            <Separator/>
+            <Label text="PATIENT" styleClass="nav-section-label"/>
+            <Button fx:id="btnMonDossier" text="📋 Mon Dossier"
+                    onAction="#showMonDossier" styleClass="nav-btn" maxWidth="Infinity"/>
+            <Button fx:id="btnMesOrdonnancesPatient" text="📝 Mes Ordonnances"
+                    onAction="#showMesOrdonnances" styleClass="nav-btn" maxWidth="Infinity"/>
         </VBox>
     </left>
 

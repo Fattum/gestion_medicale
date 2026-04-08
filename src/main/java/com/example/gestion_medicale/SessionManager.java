@@ -5,6 +5,7 @@ import com.example.gestion_medicale.models.User;
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
+    private Integer currentPatientId;
 
     private SessionManager() {}
 
@@ -18,6 +19,9 @@ public class SessionManager {
     public User getCurrentUser() { return currentUser; }
     public void setCurrentUser(User user) { this.currentUser = user; }
 
+    public Integer getCurrentPatientId() { return currentPatientId; }
+    public void setCurrentPatientId(Integer currentPatientId) { this.currentPatientId = currentPatientId; }
+
     public boolean isAdmin() {
         return currentUser != null && "ADMIN".equals(currentUser.getRole());
     }
@@ -30,7 +34,12 @@ public class SessionManager {
         return currentUser != null && "MEDECIN".equals(currentUser.getRole());
     }
 
+    public boolean isPatient() {
+        return currentUser != null && "PATIENT".equals(currentUser.getRole());
+    }
+
     public void logout() {
         currentUser = null;
+        currentPatientId = null;
     }
 }

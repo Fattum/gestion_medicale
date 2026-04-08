@@ -28,6 +28,11 @@ public class MainController {
     @FXML private Button btnMesPatientsRdv;
     @FXML private Button btnMesDossiers;
     @FXML private Button btnMesRendezVous;
+    @FXML private Button btnMesOrdonnances;
+
+    // Patient nav buttons
+    @FXML private Button btnMonDossier;
+    @FXML private Button btnMesOrdonnancesPatient;
 
     @FXML
     public void initialize() {
@@ -42,6 +47,7 @@ public class MainController {
         boolean isAdmin = session.isAdmin();
         boolean isSecretaire = session.isSecretaire();
         boolean isMedecin = session.isMedecin();
+        boolean isPatient = session.isPatient();
 
         if (btnUtilisateurs != null) btnUtilisateurs.setVisible(isAdmin);
         if (btnMedecins != null) btnMedecins.setVisible(isAdmin);
@@ -54,6 +60,10 @@ public class MainController {
         if (btnMesPatientsRdv != null) btnMesPatientsRdv.setVisible(isMedecin);
         if (btnMesDossiers != null) btnMesDossiers.setVisible(isMedecin);
         if (btnMesRendezVous != null) btnMesRendezVous.setVisible(isMedecin);
+        if (btnMesOrdonnances != null) btnMesOrdonnances.setVisible(isMedecin);
+
+        if (btnMonDossier != null) btnMonDossier.setVisible(isPatient);
+        if (btnMesOrdonnancesPatient != null) btnMesOrdonnancesPatient.setVisible(isPatient);
 
         // Load default view
         if (isAdmin) {
@@ -62,6 +72,8 @@ public class MainController {
             loadView("PatientManagement.fxml");
         } else if (isMedecin) {
             loadView("DisponibiliteManagement.fxml");
+        } else if (isPatient) {
+            loadView("OrdonnanceManagement.fxml");
         }
     }
 
@@ -75,6 +87,8 @@ public class MainController {
     @FXML private void showMesPatientsRdv() { loadView("RendezVousManagement.fxml"); }
     @FXML private void showMesDossiers() { loadView("DossierMedicalManagement.fxml"); }
     @FXML private void showMesRendezVous() { loadView("RendezVousManagement.fxml"); }
+    @FXML private void showMesOrdonnances() { loadView("OrdonnanceManagement.fxml"); }
+    @FXML private void showMonDossier() { loadView("DossierMedicalManagement.fxml"); }
 
     @FXML
     private void handleLogout() {

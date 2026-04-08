@@ -23,13 +23,11 @@ public class UserController {
 
     private ObservableList<User> userList = FXCollections.observableArrayList();
     private User selectedUser;
-
     @FXML
     public void initialize() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-
         cmbRole.setItems(FXCollections.observableArrayList("ADMIN", "SECRETAIRE", "MEDECIN"));
 
         tableUsers.setItems(userList);

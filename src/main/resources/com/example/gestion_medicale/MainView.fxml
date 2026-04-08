@@ -20,43 +20,70 @@
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox styleClass="sidebar" spacing="4" minWidth="200">
-            <padding><Insets top="20" right="10" bottom="20" left="10"/></padding>
+        <VBox styleClass="sidebar" minWidth="240">
+            <!-- Header -->
+            <VBox styleClass="sidebar-header" spacing="6">
+                <padding><Insets top="18" right="14" bottom="12" left="14"/></padding>
+                <Label text="Navigation" styleClass="sidebar-title"/>
+                <Label fx:id="lblSidebarUser" styleClass="sidebar-user"/>
+            </VBox>
 
-            <Label text="ADMINISTRATION" styleClass="nav-section-label"/>
-            <Button fx:id="btnUtilisateurs" text="👥 Utilisateurs"
-                    onAction="#showUtilisateurs" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnMedecins" text="👨‍⚕️ Médecins"
-                    onAction="#showMedecins" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnSpecialites" text="🏷 Spécialités"
-                    onAction="#showSpecialites" styleClass="nav-btn" maxWidth="Infinity"/>
+            <Separator styleClass="sidebar-sep"/>
 
-            <Separator/>
-            <Label text="GESTION" styleClass="nav-section-label"/>
-            <Button fx:id="btnPatients" text="🧑 Patients"
-                    onAction="#showPatients" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnRendezVous" text="📅 Rendez-vous"
-                    onAction="#showRendezVous" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnDossiers" text="📋 Dossiers Médicaux"
-                    onAction="#showDossiers" styleClass="nav-btn" maxWidth="Infinity"/>
+            <!-- Scrollable nav (handles small screens) -->
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="sidebar-scroll">
+                <content>
+                    <VBox spacing="10">
+                        <padding><Insets top="12" right="10" bottom="16" left="10"/></padding>
 
-            <Separator/>
-            <Label text="MÉDECIN" styleClass="nav-section-label"/>
-            <Button fx:id="btnMesDisponibilites" text="🗓 Mes Disponibilités"
-                    onAction="#showMesDisponibilites" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnMesRendezVous" text="📅 Mes Rendez-vous"
-                    onAction="#showMesRendezVous" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnMesDossiers" text="📋 Dossiers Patients"
-                    onAction="#showMesDossiers" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnMesOrdonnances" text="📝 Ordonnances"
-                    onAction="#showMesOrdonnances" styleClass="nav-btn" maxWidth="Infinity"/>
+                        <VBox fx:id="sectionAdmin" spacing="4">
+                            <Label text="ADMINISTRATION" styleClass="nav-section-label"/>
+                            <Button fx:id="btnUtilisateurs" text="👥 Utilisateurs"
+                                    onAction="#showUtilisateurs" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnMedecins" text="👨‍⚕️ Médecins"
+                                    onAction="#showMedecins" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnSpecialites" text="🏷 Spécialités"
+                                    onAction="#showSpecialites" styleClass="nav-btn" maxWidth="Infinity"/>
+                        </VBox>
 
-            <Separator/>
-            <Label text="PATIENT" styleClass="nav-section-label"/>
-            <Button fx:id="btnMonDossier" text="📋 Mon Dossier"
-                    onAction="#showMonDossier" styleClass="nav-btn" maxWidth="Infinity"/>
-            <Button fx:id="btnMesOrdonnancesPatient" text="📝 Mes Ordonnances"
-                    onAction="#showMesOrdonnances" styleClass="nav-btn" maxWidth="Infinity"/>
+                        <Separator fx:id="sepGestion" styleClass="sidebar-sep"/>
+
+                        <VBox fx:id="sectionGestion" spacing="4">
+                            <Label text="GESTION" styleClass="nav-section-label"/>
+                            <Button fx:id="btnPatients" text="🧑 Patients"
+                                    onAction="#showPatients" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnRendezVous" text="📅 Rendez-vous"
+                                    onAction="#showRendezVous" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnDossiers" text="📋 Dossiers Médicaux"
+                                    onAction="#showDossiers" styleClass="nav-btn" maxWidth="Infinity"/>
+                        </VBox>
+
+                        <Separator fx:id="sepMedecin" styleClass="sidebar-sep"/>
+
+                        <VBox fx:id="sectionMedecin" spacing="4">
+                            <Label text="MÉDECIN" styleClass="nav-section-label"/>
+                            <Button fx:id="btnMesDisponibilites" text="🗓 Mes Disponibilités"
+                                    onAction="#showMesDisponibilites" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnMesRendezVous" text="📅 Mes Rendez-vous"
+                                    onAction="#showMesRendezVous" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnMesDossiers" text="📋 Dossiers Patients"
+                                    onAction="#showMesDossiers" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnMesOrdonnances" text="📝 Ordonnances"
+                                    onAction="#showMesOrdonnances" styleClass="nav-btn" maxWidth="Infinity"/>
+                        </VBox>
+
+                        <Separator fx:id="sepPatient" styleClass="sidebar-sep"/>
+
+                        <VBox fx:id="sectionPatient" spacing="4">
+                            <Label text="PATIENT" styleClass="nav-section-label"/>
+                            <Button fx:id="btnMonDossier" text="📋 Mon Dossier"
+                                    onAction="#showMonDossier" styleClass="nav-btn" maxWidth="Infinity"/>
+                            <Button fx:id="btnMesOrdonnancesPatient" text="📝 Mes Ordonnances"
+                                    onAction="#showMesOrdonnances" styleClass="nav-btn" maxWidth="Infinity"/>
+                        </VBox>
+                    </VBox>
+                </content>
+            </ScrollPane>
         </VBox>
     </left>
 

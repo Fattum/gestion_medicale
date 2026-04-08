@@ -14,11 +14,18 @@
     .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
     @media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr; } }
     .mermaid { background: #fff; }
+    .diagram { padding: 10px; border: 1px solid #eee; border-radius: 10px; }
+    .diagram .mermaid { font-size: 16px; }
     .footer { margin-top: 32px; font-size: 12px; color: #666; }
   </style>
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "default" });
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      flowchart: { curve: "basis", padding: 12 },
+      class: { diagramPadding: 12 }
+    });
   </script>
 </head>
 <body>
@@ -43,47 +50,62 @@
   <div class="grid">
     <div class="card">
       <h2>Diagramme de classes (UML)</h2>
-      <div class="mermaid">
+      <div class="diagram"><div class="mermaid">
 classDiagram
 direction LR
 
-class User { +int id +String nom +String motDePasse +String role }
-class Patient { +int id +String nom +String telephone +String adresse }
-class Doctor { +int id +String nom +int idSpecialite +String nomSpecialite }
-class Specialite { +int id +String nom +String description }
-class Disponibilite { +int id +LocalDate dateDispo +LocalTime heureDebut +LocalTime heureFin +int idMedecin }
-class RendezVous { +int id +LocalDate dateRdv +LocalTime heureRdv +String statut +int idPatient +int idMedecin +Integer idSecretaire }
-class DossierMedical { +int id +int idPatient +String historique +String allergies +String observations }
-class Ordonnance { +int id +int idRdv +int idPatient +int idMedecin +String libelle +String contenu +LocalDate dateOrdonnance }
-class SessionManager { +User currentUser +Integer currentPatientId +isAdmin() +isSecretaire() +isMedecin() +isPatient() }
+class User {
+  +int id
+  +String nom
+  +String motDePasse
+  +String role
+}
+class Patient {
+  +int id
+  +String nom
+  +String telephone
+  +String adresse
+}
+class Doctor {
+  +int id
+  +String nom
+  +int idSpecialite
+  +String nomSpecialite
+}
+class Specialite { +int id +String nom }
+class Disponibilite { +int id +LocalDate dateDispo +LocalTime heureDebut +LocalTime heureFin }
+class RendezVous { +int id +LocalDate dateRdv +LocalTime heureRdv +String statut }
+class DossierMedical { +int id +String historique +String allergies +String observations }
+class Ordonnance { +int id +String libelle +String contenu +LocalDate dateOrdonnance }
+class SessionManager { +User currentUser +Integer currentPatientId }
 
-User "1" --> "0..1" Doctor : Medecin(id_utilisateur)
-User "1" --> "0..1" Patient : PatientCompte (role PATIENT)
-User "0..*" --> "0..*" Doctor : SecretaireMedecin
+User "1" --> "0..1" Doctor : est_medecin
+User "1" --> "0..1" Patient : est_patient (PatientCompte)
+User "0..*" --> "0..*" Doctor : secretaire_lie_medecins (SecretaireMedecin)
 
-Patient "1" --> "1" DossierMedical : 1..1
-Doctor "1" --> "0..*" Disponibilite : 1..*
-Patient "1" --> "0..*" RendezVous : 1..*
-Doctor "1" --> "0..*" RendezVous : 1..*
-RendezVous "1" --> "0..*" Ordonnance : 1..*
-Patient "1" --> "0..*" Ordonnance : 1..*
-Doctor "1" --> "0..*" Ordonnance : 1..*
+Patient "1" --> "1" DossierMedical : possede
+Doctor "1" --> "0..*" Disponibilite : propose
+Patient "1" --> "0..*" RendezVous : prend
+Doctor "1" --> "0..*" RendezVous : recoit
+RendezVous "1" --> "0..*" Ordonnance : genere
+Patient "1" --> "0..*" Ordonnance : recoit
+Doctor "1" --> "0..*" Ordonnance : ecrit
 Doctor "0..*" --> "1" Specialite : appartient
 SessionManager --> User : session
-      </div>
+      </div></div>
     </div>
 
     <div class="card">
       <h2>Diagramme de cas d’utilisation</h2>
-      <div class="mermaid">
+      <div class="diagram"><div class="mermaid">
 flowchart LR
   A[ADMIN] --> U1((Gérer utilisateurs))
   A --> U2((Gérer médecins))
   A --> U3((Gérer spécialités))
 
-  S[SECRETAIRE] --> SDOC((Voir médecins liés))
+  S[SECRETAIRE] --> SDOC((Médecins liés))
   S --> P1((Gérer patients))
-  S --> R1((Créer/planifier RDV (médecins liés)))
+  S --> R1((Planifier RDV (médecins liés)))
   S --> R2((Modifier statut RDV))
   S --> D1((Consulter dossiers (médecins liés)))
 
@@ -95,7 +117,7 @@ flowchart LR
 
   P[PATIENT] --> PDOS((Voir mon dossier))
   P --> PORD((Voir mes ordonnances))
-      </div>
+      </div></div>
     </div>
   </div>
 

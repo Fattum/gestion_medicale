@@ -44,6 +44,34 @@
   -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 4, 0, 2, 0);
 }
 
+.sidebar-header {
+  -fx-background-color: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-title {
+  -fx-font-size: 14px;
+  -fx-font-weight: bold;
+  -fx-text-fill: #ecf0f1;
+}
+
+.sidebar-user {
+  -fx-font-size: 12px;
+  -fx-text-fill: #bdc3c7;
+}
+
+.sidebar-scroll {
+  -fx-background-color: transparent;
+}
+
+.sidebar-scroll > .viewport {
+  -fx-background-color: transparent;
+}
+
+.sidebar-sep .line {
+  -fx-border-color: rgba(236, 240, 241, 0.12);
+  -fx-border-width: 1;
+}
+
 .nav-section-label {
   -fx-font-size: 10px;
   -fx-font-weight: bold;
@@ -67,6 +95,17 @@
 
 .nav-btn:pressed {
   -fx-background-color: #3498db;
+}
+
+.nav-btn:focused {
+  -fx-background-color: rgba(52, 152, 219, 0.18);
+  -fx-border-color: rgba(52, 152, 219, 0.35);
+  -fx-border-radius: 6;
+}
+
+.nav-btn-active {
+  -fx-background-color: rgba(52, 152, 219, 0.35);
+  -fx-text-fill: white;
 }
 
 /* ===== CONTENT AREA ===== */

@@ -182,7 +182,6 @@ public class RendezVousController {
                 FROM Disponibilite d
                 JOIN Utilisateur u ON d.id_medecin = u.id
                 WHERE d.id_medecin = ?
-                AND d.id NOT IN (SELECT id_disponibilite FROM RendezVous WHERE id_disponibilite IS NOT NULL)
                 ORDER BY d.date_dispo, d.heureDebut
                 """;
         try (Connection conn = DatabaseConnection.getConnection();

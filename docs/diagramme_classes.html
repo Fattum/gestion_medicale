@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diagramme de classes – Gestion Médicale</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #111; }
+    h1 { margin: 0 0 12px; }
+    .muted { color: #555; margin: 0 0 18px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 18px; }
+    .btn { border: 1px solid #cbd5e1; background: #f8fafc; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .diagram { padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #fff; }
+    .diagram .mermaid { font-size: 16px; }
+  </style>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      class: { diagramPadding: 12 }
+    });
+
+    function downloadBlob(filename, blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function svgToPngBlob(svgEl, scale = 2) {
+      const svgData = new XMLSerializer().serializeToString(svgEl);
+      const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const bbox = svgEl.getBBox();
+          const w = Math.ceil((bbox.width || svgEl.clientWidth || 1200) * scale);
+          const h = Math.ceil((bbox.height || svgEl.clientHeight || 800) * scale);
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob((pngBlob) => {
+            URL.revokeObjectURL(svgUrl);
+            if (!pngBlob) reject(new Error("PNG conversion failed"));
+            else resolve(pngBlob);
+          }, "image/png");
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(svgUrl);
+          reject(e);
+        };
+        img.src = svgUrl;
+      });
+    }
+
+    window.addEventListener("load", () => {
+      const btnSvg = document.getElementById("btnSvg");
+      const btnPng = document.getElementById("btnPng");
+
+      const tryEnable = () => {
+        const svg = document.querySelector(".diagram svg");
+        if (!svg) return false;
+        btnSvg.disabled = false;
+        btnPng.disabled = false;
+
+        btnSvg.onclick = () => {
+          const data = new XMLSerializer().serializeToString(svg);
+          downloadBlob("diagramme_classes.svg", new Blob([data], { type: "image/svg+xml;charset=utf-8" }));
+        };
+        btnPng.onclick = async () => {
+          btnPng.disabled = true;
+          btnPng.textContent = "Génération PNG…";
+          try {
+            const pngBlob = await svgToPngBlob(svg, 2);
+            downloadBlob("diagramme_classes.png", pngBlob);
+          } finally {
+            btnPng.disabled = false;
+            btnPng.textContent = "Télécharger PNG";
+          }
+        };
+        return true;
+      };
+
+      // Mermaid renders async; poll briefly
+      let attempts = 0;
+      const timer = setInterval(() => {
+        attempts += 1;
+        if (tryEnable() || attempts > 40) clearInterval(timer);
+      }, 100);
+    });
+  </script>
+</head>
+<body>
+  <h1>Diagramme de classes (UML) – Gestion Médicale</h1>
+  <p class="muted">
+    Export PDF: <b>Ctrl+P → Enregistrer en PDF</b>.
+  </p>
+
+  <div class="actions">
+    <button class="btn" id="btnSvg" disabled>Télécharger SVG</button>
+    <button class="btn" id="btnPng" disabled>Télécharger PNG</button>
+  </div>
+
+  <div class="diagram">
+    <div class="mermaid">
+classDiagram
+direction LR
+
+class User {
+  +int id
+  +String nom
+  +String motDePasse
+  +String role
+}
+class Patient {
+  +int id
+  +String nom
+  +String telephone
+  +String adresse
+}
+class Doctor {
+  +int id
+  +String nom
+  +int idSpecialite
+  +String nomSpecialite
+}
+class Specialite { +int id +String nom }
+class Disponibilite { +int id +LocalDate dateDispo +LocalTime heureDebut +LocalTime heureFin }
+class RendezVous { +int id +LocalDate dateRdv +LocalTime heureRdv +String statut }
+class DossierMedical { +int id +String historique +String allergies +String observations }
+class Ordonnance { +int id +String libelle +String contenu +LocalDate dateOrdonnance }
+class SessionManager { +User currentUser +Integer currentPatientId }
+
+User "1" --> "0..1" Doctor : est_medecin
+User "1" --> "0..1" Patient : est_patient (PatientCompte)
+User "0..*" --> "0..*" Doctor : secretaire_lie_medecins (SecretaireMedecin)
+
+Patient "1" --> "1" DossierMedical : possede
+Doctor "1" --> "0..*" Disponibilite : propose
+Patient "1" --> "0..*" RendezVous : prend
+Doctor "1" --> "0..*" RendezVous : recoit
+RendezVous "1" --> "0..*" Ordonnance : genere
+Patient "1" --> "0..*" Ordonnance : recoit
+Doctor "1" --> "0..*" Ordonnance : ecrit
+Doctor "0..*" --> "1" Specialite : appartient
+SessionManager --> User : session
+    </div>
+  </div>
+</body>
+</html>
+
